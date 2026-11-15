@@ -1,0 +1,6 @@
+@QuanLyCongTac.Api_HostAddress = http://localhost:5112
+
+GET {{QuanLyCongTac.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

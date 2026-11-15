@@ -1,0 +1,23 @@
+wwwroot\HoaDonThucTe\02_vinasun_taxi_real.png
+wwwroot\HoaDonThucTe\1441.png
+wwwroot\HoaDonThucTe\1728633765023.png
+wwwroot\HoaDonThucTe\1759803237-w-bill-3583-width975height1200.jpg
+wwwroot\HoaDonThucTe\image (6).png
+wwwroot\HoaDonThucTe\images (1).jpg
+wwwroot\HoaDonThucTe\images.jpg
+wwwroot\HoaDonThucTe\xuat-hoa-don-ve-may-bay-3.webp
+wwwroot\uploads\invoices\02_vinasun_taxi_real.png
+wwwroot\uploads\invoices\1441.png
+wwwroot\uploads\invoices\1728633765023.png
+wwwroot\uploads\invoices\1759803237-w-bill-3583-width975height1200.jpg
+wwwroot\uploads\invoices\CTKB_64163_1_20261115173104.jpg
+wwwroot\uploads\invoices\CTKB_9c87a5_1_20261115210508.png
+wwwroot\uploads\invoices\image (6).png
+wwwroot\uploads\invoices\images (1).jpg
+wwwroot\uploads\invoices\images.jpg
+wwwroot\uploads\invoices\xuat-hoa-don-ve-may-bay-3.webp
+wwwroot\uploads\test_tiep_khach.jpg
+wwwroot\uploads\test_ve_may_bay.jpg
+wwwroot\uploads\vinasun_real_bill.png
+wwwroot\uploads\invoices\CTKB_3c7f96_1_20261115214840.png
+wwwroot\uploads\invoices\CTKB_3c7f96_2_20261115214840.webp

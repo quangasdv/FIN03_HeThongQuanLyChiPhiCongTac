@@ -1,0 +1,472 @@
+[
+  {
+    "ContainingType": "QuanLyCongTac.Api.Controllers.AuthController",
+    "Method": "GetDepartments",
+    "RelativePath": "api/Auth/departments",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "QuanLyCongTac.Api.Controllers.AuthController",
+    "Method": "Login",
+    "RelativePath": "api/Auth/login",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "QuanLyCongTac.Api.DTOs.LoginRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "QuanLyCongTac.Api.Controllers.AuthController",
+    "Method": "GetUsers",
+    "RelativePath": "api/Auth/users",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "QuanLyCongTac.Api.Controllers.AuthController",
+    "Method": "CreateUser",
+    "RelativePath": "api/Auth/users",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "QuanLyCongTac.Api.DTOs.UserCreateRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "QuanLyCongTac.Api.Controllers.AuthController",
+    "Method": "UpdateUser",
+    "RelativePath": "api/Auth/users/{maNV}",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "maNV",
+        "Type": "System.String",
+        "IsRequired": true
+      },
+      {
+        "Name": "request",
+        "Type": "QuanLyCongTac.Api.DTOs.UserUpdateRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "QuanLyCongTac.Api.Controllers.AuthController",
+    "Method": "DeleteUser",
+    "RelativePath": "api/Auth/users/{maNV}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "maNV",
+        "Type": "System.String",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "QuanLyCongTac.Api.Controllers.AuthController",
+    "Method": "ResetPassword",
+    "RelativePath": "api/Auth/users/{maNV}/reset-password",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "maNV",
+        "Type": "System.String",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "QuanLyCongTac.Api.Controllers.DeXuatController",
+    "Method": "GetDanhSach",
+    "RelativePath": "api/DeXuat",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "maNV",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "trangThai",
+        "Type": "System.String",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "QuanLyCongTac.Api.Controllers.DeXuatController",
+    "Method": "TaoDeXuat",
+    "RelativePath": "api/DeXuat",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "QuanLyCongTac.Api.DTOs.TaoDeXuatRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "QuanLyCongTac.Api.Controllers.DeXuatController",
+    "Method": "GetById",
+    "RelativePath": "api/DeXuat/{maDeXuat}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "maDeXuat",
+        "Type": "System.String",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "QuanLyCongTac.Api.Controllers.DeXuatController",
+    "Method": "XoaHoacHuy",
+    "RelativePath": "api/DeXuat/{maDeXuat}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "maDeXuat",
+        "Type": "System.String",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "QuanLyCongTac.Api.Controllers.DeXuatController",
+    "Method": "HoanThanhChuyenDi",
+    "RelativePath": "api/DeXuat/{maDeXuat}/hoan-thanh-chuyen-di",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "maDeXuat",
+        "Type": "System.String",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "QuanLyCongTac.Api.Controllers.DeXuatController",
+    "Method": "SubmitDraft",
+    "RelativePath": "api/DeXuat/{maDeXuat}/submit",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "maDeXuat",
+        "Type": "System.String",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "QuanLyCongTac.Api.Controllers.DinhMucController",
+    "Method": "GetDanhSach",
+    "RelativePath": "api/DinhMuc",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "QuanLyCongTac.Api.Controllers.DinhMucController",
+    "Method": "Create",
+    "RelativePath": "api/DinhMuc",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "QuanLyCongTac.Api.DTOs.DinhMucCreateRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "QuanLyCongTac.Api.Controllers.DinhMucController",
+    "Method": "Update",
+    "RelativePath": "api/DinhMuc/{maQuyDinh}",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "maQuyDinh",
+        "Type": "System.String",
+        "IsRequired": true
+      },
+      {
+        "Name": "request",
+        "Type": "QuanLyCongTac.Api.DTOs.DinhMucUpdateRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "QuanLyCongTac.Api.Controllers.DinhMucController",
+    "Method": "Delete",
+    "RelativePath": "api/DinhMuc/{maQuyDinh}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "maQuyDinh",
+        "Type": "System.String",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "QuanLyCongTac.Api.Controllers.DinhMucController",
+    "Method": "GetLoaiChiPhi",
+    "RelativePath": "api/DinhMuc/loai-chi-phi",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "QuanLyCongTac.Api.Controllers.PheDuyetController",
+    "Method": "PheDuyet",
+    "RelativePath": "api/PheDuyet",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "QuanLyCongTac.Api.DTOs.PheDuyetRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "QuanLyCongTac.Api.Controllers.PheDuyetController",
+    "Method": "GetDanhSachNgoaiLe",
+    "RelativePath": "api/PheDuyet/ngoai-le",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "maPB",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "trangThai",
+        "Type": "System.String",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "QuanLyCongTac.Api.Controllers.PheDuyetController",
+    "Method": "PheDuyetNgoaiLe",
+    "RelativePath": "api/PheDuyet/ngoai-le",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "QuanLyCongTac.Api.DTOs.PheDuyetNgoaiLeRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "QuanLyCongTac.Api.Controllers.PheDuyetController",
+    "Method": "GetDonTonDong",
+    "RelativePath": "api/PheDuyet/nhac-nho/don-ton-dong",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "maPB",
+        "Type": "System.String",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "QuanLyCongTac.Api.Controllers.PheDuyetController",
+    "Method": "KichHoatQuetNhacNho",
+    "RelativePath": "api/PheDuyet/nhac-nho/kich-hoat-quet",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "maPB",
+        "Type": "System.String",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "QuanLyCongTac.Api.Controllers.QuyetToanController",
+    "Method": "ChotSo",
+    "RelativePath": "api/QuyetToan/chot-so",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "QuanLyCongTac.Api.DTOs.ChotSoQuyetToanRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "QuanLyCongTac.Api.Controllers.QuyetToanController",
+    "Method": "GetChungTu",
+    "RelativePath": "api/QuyetToan/chung-tu",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "maDeXuat",
+        "Type": "System.String",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "QuanLyCongTac.Api.Controllers.QuyetToanController",
+    "Method": "DieuChinhChiPhi",
+    "RelativePath": "api/QuyetToan/dieu-chinh-chi-phi/{maCTKB}",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "maCTKB",
+        "Type": "System.String",
+        "IsRequired": true
+      },
+      {
+        "Name": "request",
+        "Type": "QuanLyCongTac.Api.DTOs.DieuChinhChiPhiRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "QuanLyCongTac.Api.Controllers.QuyetToanController",
+    "Method": "KhaiBaoChiPhi",
+    "RelativePath": "api/QuyetToan/khai-bao",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "QuanLyCongTac.Api.DTOs.TaoPhieuKhaiBaoRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "QuanLyCongTac.Api.Controllers.QuyetToanController",
+    "Method": "GetTongHop",
+    "RelativePath": "api/QuyetToan/tonghop",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "maNV",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "maPB",
+        "Type": "System.String",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "QuanLyCongTac.Api.Controllers.TamUngController",
+    "Method": "ChiTamUng",
+    "RelativePath": "api/TamUng",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "QuanLyCongTac.Api.DTOs.ChiTamUngRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  }
+]

@@ -1,0 +1,261 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "F:\\PTPMHDT\\do an ck\\QuanLyCongTac\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{2CBE99A5-48F9-42BC-BEB5-75933F3CB0B5}|QuanLyCongTac.Api\\QuanLyCongTac.Api.csproj|f:\\ptpmhdt\\do an ck\\quanlycongtac\\quanlycongtac.api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{2CBE99A5-48F9-42BC-BEB5-75933F3CB0B5}|QuanLyCongTac.Api\\QuanLyCongTac.Api.csproj|solutionrelative:quanlycongtac.api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{4BC03BF2-58A4-044C-896D-DDAEEECD967A}|F:\\PTPMHDT\\do an ck\\QuanLyCongTac\\QuanLyCongTac.Web|F:\\PTPMHDT\\do an ck\\QuanLyCongTac\\quanlycongtac.web\\src\\app.jsx||{14D17961-FE51-464D-9111-C4AF11D7D99A}",
+      "RelativeMoniker": "D:0:0:{4BC03BF2-58A4-044C-896D-DDAEEECD967A}|F:\\PTPMHDT\\do an ck\\QuanLyCongTac\\QuanLyCongTac.Web|solutionrelative:quanlycongtac.web\\src\\app.jsx||{14D17961-FE51-464D-9111-C4AF11D7D99A}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{4BC03BF2-58A4-044C-896D-DDAEEECD967A}|F:\\PTPMHDT\\do an ck\\QuanLyCongTac\\QuanLyCongTac.Web|F:\\PTPMHDT\\do an ck\\QuanLyCongTac\\quanlycongtac.web\\src\\api.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}",
+      "RelativeMoniker": "D:0:0:{4BC03BF2-58A4-044C-896D-DDAEEECD967A}|F:\\PTPMHDT\\do an ck\\QuanLyCongTac\\QuanLyCongTac.Web|solutionrelative:quanlycongtac.web\\src\\api.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{4BC03BF2-58A4-044C-896D-DDAEEECD967A}|F:\\PTPMHDT\\do an ck\\QuanLyCongTac\\QuanLyCongTac.Web|F:\\PTPMHDT\\do an ck\\QuanLyCongTac\\quanlycongtac.web\\src\\index.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}",
+      "RelativeMoniker": "D:0:0:{4BC03BF2-58A4-044C-896D-DDAEEECD967A}|F:\\PTPMHDT\\do an ck\\QuanLyCongTac\\QuanLyCongTac.Web|solutionrelative:quanlycongtac.web\\src\\index.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{4BC03BF2-58A4-044C-896D-DDAEEECD967A}|F:\\PTPMHDT\\do an ck\\QuanLyCongTac\\QuanLyCongTac.Web|F:\\PTPMHDT\\do an ck\\QuanLyCongTac\\quanlycongtac.web\\vite.config.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}",
+      "RelativeMoniker": "D:0:0:{4BC03BF2-58A4-044C-896D-DDAEEECD967A}|F:\\PTPMHDT\\do an ck\\QuanLyCongTac\\QuanLyCongTac.Web|solutionrelative:quanlycongtac.web\\vite.config.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{2CBE99A5-48F9-42BC-BEB5-75933F3CB0B5}|QuanLyCongTac.Api\\QuanLyCongTac.Api.csproj|f:\\ptpmhdt\\do an ck\\quanlycongtac\\quanlycongtac.api\\controllers\\tamungcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{2CBE99A5-48F9-42BC-BEB5-75933F3CB0B5}|QuanLyCongTac.Api\\QuanLyCongTac.Api.csproj|solutionrelative:quanlycongtac.api\\controllers\\tamungcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{2CBE99A5-48F9-42BC-BEB5-75933F3CB0B5}|QuanLyCongTac.Api\\QuanLyCongTac.Api.csproj|f:\\ptpmhdt\\do an ck\\quanlycongtac\\quanlycongtac.api\\controllers\\dexuatcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{2CBE99A5-48F9-42BC-BEB5-75933F3CB0B5}|QuanLyCongTac.Api\\QuanLyCongTac.Api.csproj|solutionrelative:quanlycongtac.api\\controllers\\dexuatcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{2CBE99A5-48F9-42BC-BEB5-75933F3CB0B5}|QuanLyCongTac.Api\\QuanLyCongTac.Api.csproj|f:\\ptpmhdt\\do an ck\\quanlycongtac\\quanlycongtac.api\\dtos\\nghiepvudto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{2CBE99A5-48F9-42BC-BEB5-75933F3CB0B5}|QuanLyCongTac.Api\\QuanLyCongTac.Api.csproj|solutionrelative:quanlycongtac.api\\dtos\\nghiepvudto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{2CBE99A5-48F9-42BC-BEB5-75933F3CB0B5}|QuanLyCongTac.Api\\QuanLyCongTac.Api.csproj|f:\\ptpmhdt\\do an ck\\quanlycongtac\\quanlycongtac.api\\controllers\\quyettoancontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{2CBE99A5-48F9-42BC-BEB5-75933F3CB0B5}|QuanLyCongTac.Api\\QuanLyCongTac.Api.csproj|solutionrelative:quanlycongtac.api\\controllers\\quyettoancontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{2CBE99A5-48F9-42BC-BEB5-75933F3CB0B5}|QuanLyCongTac.Api\\QuanLyCongTac.Api.csproj|f:\\ptpmhdt\\do an ck\\quanlycongtac\\quanlycongtac.api\\controllers\\pheduyetcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{2CBE99A5-48F9-42BC-BEB5-75933F3CB0B5}|QuanLyCongTac.Api\\QuanLyCongTac.Api.csproj|solutionrelative:quanlycongtac.api\\controllers\\pheduyetcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{2CBE99A5-48F9-42BC-BEB5-75933F3CB0B5}|QuanLyCongTac.Api\\QuanLyCongTac.Api.csproj|f:\\ptpmhdt\\do an ck\\quanlycongtac\\quanlycongtac.api\\dtos\\dexuatdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{2CBE99A5-48F9-42BC-BEB5-75933F3CB0B5}|QuanLyCongTac.Api\\QuanLyCongTac.Api.csproj|solutionrelative:quanlycongtac.api\\dtos\\dexuatdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{2CBE99A5-48F9-42BC-BEB5-75933F3CB0B5}|QuanLyCongTac.Api\\QuanLyCongTac.Api.csproj|f:\\ptpmhdt\\do an ck\\quanlycongtac\\quanlycongtac.api\\quanlycongtac.api.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|",
+      "RelativeMoniker": "D:0:0:{2CBE99A5-48F9-42BC-BEB5-75933F3CB0B5}|QuanLyCongTac.Api\\QuanLyCongTac.Api.csproj|solutionrelative:quanlycongtac.api\\quanlycongtac.api.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{2CBE99A5-48F9-42BC-BEB5-75933F3CB0B5}|QuanLyCongTac.Api\\QuanLyCongTac.Api.csproj|f:\\ptpmhdt\\do an ck\\quanlycongtac\\quanlycongtac.api\\dtos\\commondto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{2CBE99A5-48F9-42BC-BEB5-75933F3CB0B5}|QuanLyCongTac.Api\\QuanLyCongTac.Api.csproj|solutionrelative:quanlycongtac.api\\dtos\\commondto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{2CBE99A5-48F9-42BC-BEB5-75933F3CB0B5}|QuanLyCongTac.Api\\QuanLyCongTac.Api.csproj|f:\\ptpmhdt\\do an ck\\quanlycongtac\\quanlycongtac.api\\data\\dbconnectionfactory.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{2CBE99A5-48F9-42BC-BEB5-75933F3CB0B5}|QuanLyCongTac.Api\\QuanLyCongTac.Api.csproj|solutionrelative:quanlycongtac.api\\data\\dbconnectionfactory.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{2CBE99A5-48F9-42BC-BEB5-75933F3CB0B5}|QuanLyCongTac.Api\\QuanLyCongTac.Api.csproj|f:\\ptpmhdt\\do an ck\\quanlycongtac\\quanlycongtac.api\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{2CBE99A5-48F9-42BC-BEB5-75933F3CB0B5}|QuanLyCongTac.Api\\QuanLyCongTac.Api.csproj|solutionrelative:quanlycongtac.api\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 5,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "vite.config.js",
+              "DocumentMoniker": "F:\\PTPMHDT\\do an ck\\QuanLyCongTac\\QuanLyCongTac.Web\\vite.config.js",
+              "RelativeDocumentMoniker": "QuanLyCongTac.Web\\vite.config.js",
+              "ToolTip": "F:\\PTPMHDT\\do an ck\\QuanLyCongTac\\QuanLyCongTac.Web\\vite.config.js",
+              "RelativeToolTip": "QuanLyCongTac.Web\\vite.config.js",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAACAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001646|",
+              "WhenOpened": "2026-10-27T19:47:34.713Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "QuyetToanController.cs",
+              "DocumentMoniker": "F:\\PTPMHDT\\do an ck\\QuanLyCongTac\\QuanLyCongTac.Api\\Controllers\\QuyetToanController.cs",
+              "RelativeDocumentMoniker": "QuanLyCongTac.Api\\Controllers\\QuyetToanController.cs",
+              "ToolTip": "F:\\PTPMHDT\\do an ck\\QuanLyCongTac\\QuanLyCongTac.Api\\Controllers\\QuyetToanController.cs",
+              "RelativeToolTip": "QuanLyCongTac.Api\\Controllers\\QuyetToanController.cs",
+              "ViewState": "AgIAAEgAAAAAAAAAAAAYwDQBAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-10-27T18:28:02.401Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "PheDuyetController.cs",
+              "DocumentMoniker": "F:\\PTPMHDT\\do an ck\\QuanLyCongTac\\QuanLyCongTac.Api\\Controllers\\PheDuyetController.cs",
+              "RelativeDocumentMoniker": "QuanLyCongTac.Api\\Controllers\\PheDuyetController.cs",
+              "ToolTip": "F:\\PTPMHDT\\do an ck\\QuanLyCongTac\\QuanLyCongTac.Api\\Controllers\\PheDuyetController.cs",
+              "RelativeToolTip": "QuanLyCongTac.Api\\Controllers\\PheDuyetController.cs",
+              "ViewState": "AgIAABsAAAAAAAAAAAAUwKcAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-10-27T18:26:50.084Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "DeXuatController.cs",
+              "DocumentMoniker": "F:\\PTPMHDT\\do an ck\\QuanLyCongTac\\QuanLyCongTac.Api\\Controllers\\DeXuatController.cs",
+              "RelativeDocumentMoniker": "QuanLyCongTac.Api\\Controllers\\DeXuatController.cs",
+              "ToolTip": "F:\\PTPMHDT\\do an ck\\QuanLyCongTac\\QuanLyCongTac.Api\\Controllers\\DeXuatController.cs",
+              "RelativeToolTip": "QuanLyCongTac.Api\\Controllers\\DeXuatController.cs",
+              "ViewState": "AgIAAOwAAAAAAAAAAAAUwFsBAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-10-27T18:25:46.716Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "NghiepVuDto.cs",
+              "DocumentMoniker": "F:\\PTPMHDT\\do an ck\\QuanLyCongTac\\QuanLyCongTac.Api\\DTOs\\NghiepVuDto.cs",
+              "RelativeDocumentMoniker": "QuanLyCongTac.Api\\DTOs\\NghiepVuDto.cs",
+              "ToolTip": "F:\\PTPMHDT\\do an ck\\QuanLyCongTac\\QuanLyCongTac.Api\\DTOs\\NghiepVuDto.cs",
+              "RelativeToolTip": "QuanLyCongTac.Api\\DTOs\\NghiepVuDto.cs",
+              "ViewState": "AgIAACgAAAAAAAAAAAA0wJQAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-10-27T18:17:46.3Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "Program.cs",
+              "DocumentMoniker": "F:\\PTPMHDT\\do an ck\\QuanLyCongTac\\QuanLyCongTac.Api\\Program.cs",
+              "RelativeDocumentMoniker": "QuanLyCongTac.Api\\Program.cs",
+              "ToolTip": "F:\\PTPMHDT\\do an ck\\QuanLyCongTac\\QuanLyCongTac.Api\\Program.cs",
+              "RelativeToolTip": "QuanLyCongTac.Api\\Program.cs",
+              "ViewState": "AgIAAGIAAAAAAAAAAAASwGwAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-10-27T18:14:50.548Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "index.css",
+              "DocumentMoniker": "F:\\PTPMHDT\\do an ck\\QuanLyCongTac\\QuanLyCongTac.Web\\src\\index.css",
+              "RelativeDocumentMoniker": "QuanLyCongTac.Web\\src\\index.css",
+              "ToolTip": "F:\\PTPMHDT\\do an ck\\QuanLyCongTac\\QuanLyCongTac.Web\\src\\index.css",
+              "RelativeToolTip": "QuanLyCongTac.Web\\src\\index.css",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003000|",
+              "WhenOpened": "2026-10-27T19:48:11.432Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "App.jsx",
+              "DocumentMoniker": "F:\\PTPMHDT\\do an ck\\QuanLyCongTac\\QuanLyCongTac.Web\\src\\App.jsx",
+              "RelativeDocumentMoniker": "QuanLyCongTac.Web\\src\\App.jsx",
+              "ToolTip": "F:\\PTPMHDT\\do an ck\\QuanLyCongTac\\QuanLyCongTac.Web\\src\\App.jsx",
+              "RelativeToolTip": "QuanLyCongTac.Web\\src\\App.jsx",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAowE0bAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003663|",
+              "WhenOpened": "2026-10-27T20:05:20.984Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "api.js",
+              "DocumentMoniker": "F:\\PTPMHDT\\do an ck\\QuanLyCongTac\\QuanLyCongTac.Web\\src\\api.js",
+              "RelativeDocumentMoniker": "QuanLyCongTac.Web\\src\\api.js",
+              "ToolTip": "F:\\PTPMHDT\\do an ck\\QuanLyCongTac\\QuanLyCongTac.Web\\src\\api.js",
+              "RelativeToolTip": "QuanLyCongTac.Web\\src\\api.js",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAADIAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001646|",
+              "WhenOpened": "2026-10-27T20:04:44.688Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "TamUngController.cs",
+              "DocumentMoniker": "F:\\PTPMHDT\\do an ck\\QuanLyCongTac\\QuanLyCongTac.Api\\Controllers\\TamUngController.cs",
+              "RelativeDocumentMoniker": "QuanLyCongTac.Api\\Controllers\\TamUngController.cs",
+              "ToolTip": "F:\\PTPMHDT\\do an ck\\QuanLyCongTac\\QuanLyCongTac.Api\\Controllers\\TamUngController.cs",
+              "RelativeToolTip": "QuanLyCongTac.Api\\Controllers\\TamUngController.cs",
+              "ViewState": "AgIAAB8AAAAAAAAAAAAiwDUAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-10-27T18:27:12.426Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "DeXuatDto.cs",
+              "DocumentMoniker": "F:\\PTPMHDT\\do an ck\\QuanLyCongTac\\QuanLyCongTac.Api\\DTOs\\DeXuatDto.cs",
+              "RelativeDocumentMoniker": "QuanLyCongTac.Api\\DTOs\\DeXuatDto.cs",
+              "ToolTip": "F:\\PTPMHDT\\do an ck\\QuanLyCongTac\\QuanLyCongTac.Api\\DTOs\\DeXuatDto.cs",
+              "RelativeToolTip": "QuanLyCongTac.Api\\DTOs\\DeXuatDto.cs",
+              "ViewState": "AgIAABAAAAAAAAAAAAA0wDIAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-10-27T18:16:59.542Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 12,
+              "Title": "CommonDto.cs",
+              "DocumentMoniker": "F:\\PTPMHDT\\do an ck\\QuanLyCongTac\\QuanLyCongTac.Api\\DTOs\\CommonDto.cs",
+              "RelativeDocumentMoniker": "QuanLyCongTac.Api\\DTOs\\CommonDto.cs",
+              "ToolTip": "F:\\PTPMHDT\\do an ck\\QuanLyCongTac\\QuanLyCongTac.Api\\DTOs\\CommonDto.cs",
+              "RelativeToolTip": "QuanLyCongTac.Api\\DTOs\\CommonDto.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA0AAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-10-27T18:16:05.728Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 13,
+              "Title": "DbConnectionFactory.cs",
+              "DocumentMoniker": "F:\\PTPMHDT\\do an ck\\QuanLyCongTac\\QuanLyCongTac.Api\\Data\\DbConnectionFactory.cs",
+              "RelativeDocumentMoniker": "QuanLyCongTac.Api\\Data\\DbConnectionFactory.cs",
+              "ToolTip": "F:\\PTPMHDT\\do an ck\\QuanLyCongTac\\QuanLyCongTac.Api\\Data\\DbConnectionFactory.cs",
+              "RelativeToolTip": "QuanLyCongTac.Api\\Data\\DbConnectionFactory.cs",
+              "ViewState": "AgIAAA4AAAAAAAAAAAA8wBgAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-10-27T18:14:03.555Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
+              "Title": "QuanLyCongTac.Api.csproj",
+              "DocumentMoniker": "F:\\PTPMHDT\\do an ck\\QuanLyCongTac\\QuanLyCongTac.Api\\QuanLyCongTac.Api.csproj",
+              "RelativeDocumentMoniker": "QuanLyCongTac.Api\\QuanLyCongTac.Api.csproj",
+              "ToolTip": "F:\\PTPMHDT\\do an ck\\QuanLyCongTac\\QuanLyCongTac.Api\\QuanLyCongTac.Api.csproj",
+              "RelativeToolTip": "QuanLyCongTac.Api\\QuanLyCongTac.Api.csproj",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
+              "WhenOpened": "2026-10-27T18:13:36.127Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 14,
+              "Title": "appsettings.json",
+              "DocumentMoniker": "F:\\PTPMHDT\\do an ck\\QuanLyCongTac\\QuanLyCongTac.Api\\appsettings.json",
+              "RelativeDocumentMoniker": "QuanLyCongTac.Api\\appsettings.json",
+              "ToolTip": "F:\\PTPMHDT\\do an ck\\QuanLyCongTac\\QuanLyCongTac.Api\\appsettings.json",
+              "RelativeToolTip": "QuanLyCongTac.Api\\appsettings.json",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2026-10-27T17:45:42.143Z"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

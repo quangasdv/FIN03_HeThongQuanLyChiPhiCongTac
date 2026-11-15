@@ -1,0 +1,1110 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "QuanLyCongTac.Api",
+    "version": "1.0"
+  },
+  "paths": {
+    "/api/Auth/login": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Auth/users": {
+      "get": {
+        "tags": [
+          "Auth"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserCreateRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserCreateRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserCreateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Auth/departments": {
+      "get": {
+        "tags": [
+          "Auth"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Auth/users/{maNV}": {
+      "put": {
+        "tags": [
+          "Auth"
+        ],
+        "parameters": [
+          {
+            "name": "maNV",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserUpdateRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserUpdateRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserUpdateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Auth"
+        ],
+        "parameters": [
+          {
+            "name": "maNV",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Auth/users/{maNV}/reset-password": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "parameters": [
+          {
+            "name": "maNV",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/DeXuat": {
+      "get": {
+        "tags": [
+          "DeXuat"
+        ],
+        "parameters": [
+          {
+            "name": "maNV",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "trangThai",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "DeXuat"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TaoDeXuatRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TaoDeXuatRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/TaoDeXuatRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/DeXuat/{maDeXuat}": {
+      "get": {
+        "tags": [
+          "DeXuat"
+        ],
+        "parameters": [
+          {
+            "name": "maDeXuat",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "DeXuat"
+        ],
+        "parameters": [
+          {
+            "name": "maDeXuat",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/DeXuat/{maDeXuat}/submit": {
+      "post": {
+        "tags": [
+          "DeXuat"
+        ],
+        "parameters": [
+          {
+            "name": "maDeXuat",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/DeXuat/{maDeXuat}/hoan-thanh-chuyen-di": {
+      "post": {
+        "tags": [
+          "DeXuat"
+        ],
+        "parameters": [
+          {
+            "name": "maDeXuat",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/DinhMuc": {
+      "get": {
+        "tags": [
+          "DinhMuc"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "DinhMuc"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DinhMucCreateRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DinhMucCreateRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/DinhMucCreateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/DinhMuc/loai-chi-phi": {
+      "get": {
+        "tags": [
+          "DinhMuc"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/DinhMuc/{maQuyDinh}": {
+      "put": {
+        "tags": [
+          "DinhMuc"
+        ],
+        "parameters": [
+          {
+            "name": "maQuyDinh",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DinhMucUpdateRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DinhMucUpdateRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/DinhMucUpdateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "DinhMuc"
+        ],
+        "parameters": [
+          {
+            "name": "maQuyDinh",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/PheDuyet": {
+      "post": {
+        "tags": [
+          "PheDuyet"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PheDuyetRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PheDuyetRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/PheDuyetRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/PheDuyet/ngoai-le": {
+      "get": {
+        "tags": [
+          "PheDuyet"
+        ],
+        "parameters": [
+          {
+            "name": "maPB",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "trangThai",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "PheDuyet"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PheDuyetNgoaiLeRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PheDuyetNgoaiLeRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/PheDuyetNgoaiLeRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/PheDuyet/nhac-nho/don-ton-dong": {
+      "get": {
+        "tags": [
+          "PheDuyet"
+        ],
+        "parameters": [
+          {
+            "name": "maPB",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/PheDuyet/nhac-nho/kich-hoat-quet": {
+      "post": {
+        "tags": [
+          "PheDuyet"
+        ],
+        "parameters": [
+          {
+            "name": "maPB",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/QuyetToan/tonghop": {
+      "get": {
+        "tags": [
+          "QuyetToan"
+        ],
+        "parameters": [
+          {
+            "name": "maNV",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "maPB",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/QuyetToan/chung-tu": {
+      "get": {
+        "tags": [
+          "QuyetToan"
+        ],
+        "parameters": [
+          {
+            "name": "maDeXuat",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/QuyetToan/chot-so": {
+      "post": {
+        "tags": [
+          "QuyetToan"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChotSoQuyetToanRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChotSoQuyetToanRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChotSoQuyetToanRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/QuyetToan/khai-bao": {
+      "post": {
+        "tags": [
+          "QuyetToan"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TaoPhieuKhaiBaoRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TaoPhieuKhaiBaoRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/TaoPhieuKhaiBaoRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/QuyetToan/dieu-chinh-chi-phi/{maCTKB}": {
+      "put": {
+        "tags": [
+          "QuyetToan"
+        ],
+        "parameters": [
+          {
+            "name": "maCTKB",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DieuChinhChiPhiRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DieuChinhChiPhiRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/DieuChinhChiPhiRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/TamUng": {
+      "post": {
+        "tags": [
+          "TamUng"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChiTamUngRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChiTamUngRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChiTamUngRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ChiTamUngRequest": {
+        "type": "object",
+        "properties": {
+          "maTamUng": {
+            "type": "string",
+            "nullable": true
+          },
+          "maDeXuat": {
+            "type": "string",
+            "nullable": true
+          },
+          "maNVKeToan": {
+            "type": "string",
+            "nullable": true
+          },
+          "soTienChi": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ChiTietDuToanItemRequest": {
+        "type": "object",
+        "properties": {
+          "maLoaiCP": {
+            "type": "string",
+            "nullable": true
+          },
+          "tenLoaiChiPhi": {
+            "type": "string",
+            "nullable": true
+          },
+          "soTienDuKien": {
+            "type": "number",
+            "format": "double"
+          },
+          "lyDoGiaiTrinh": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ChiTietKhaiBaoItemRequest": {
+        "type": "object",
+        "properties": {
+          "maCTKB": {
+            "type": "string",
+            "nullable": true
+          },
+          "maLoaiCP": {
+            "type": "string",
+            "nullable": true
+          },
+          "ngayChi": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "soTienThucTe": {
+            "type": "number",
+            "format": "double"
+          },
+          "linkAnh": {
+            "type": "string",
+            "nullable": true
+          },
+          "dungLuongMB": {
+            "type": "number",
+            "format": "double"
+          },
+          "dataBocTach": {
+            "type": "string",
+            "nullable": true
+          },
+          "lyDoGiaiTrinh": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "ChotSoQuyetToanRequest": {
+        "type": "object",
+        "properties": {
+          "maQuyetToan": {
+            "type": "string",
+            "nullable": true
+          },
+          "maDeXuat": {
+            "type": "string",
+            "nullable": true
+          },
+          "maNVKeToan": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "DieuChinhChiPhiRequest": {
+        "type": "object",
+        "properties": {
+          "soTienDieuChinh": {
+            "type": "number",
+            "format": "double"
+          },
+          "ghiChu": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "DinhMucCreateRequest": {
+        "type": "object",
+        "properties": {
+          "maQuyDinh": {
+            "type": "string",
+            "nullable": true
+          },
+          "maLoaiCP": {
+            "type": "string",
+            "nullable": true
+          },
+          "capBacApDung": {
+            "type": "string",
+            "nullable": true
+          },
+          "soTienToiDa": {
+            "type": "number",
+            "format": "double"
+          },
+          "ngayHieuLuc": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "ngayHetHan": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "DinhMucUpdateRequest": {
+        "type": "object",
+        "properties": {
+          "soTienToiDa": {
+            "type": "number",
+            "format": "double"
+          },
+          "ngayHieuLuc": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "ngayHetHan": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "LoginRequest": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "username": {
+            "type": "string",
+            "nullable": true
+          },
+          "password": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "PheDuyetNgoaiLeRequest": {
+        "type": "object",
+        "properties": {
+          "maGiaiTrinh": {
+            "type": "string",
+            "nullable": true
+          },
+          "maQuanLy": {
+            "type": "string",
+            "nullable": true
+          },
+          "hanhDong": {
+            "type": "string",
+            "nullable": true
+          },
+          "ghiChu": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "PheDuyetRequest": {
+        "type": "object",
+        "properties": {
+          "maDeXuat": {
+            "type": "string",
+            "nullable": true
+          },
+          "maQuanLy": {
+            "type": "string",
+            "nullable": true
+          },
+          "hanhDong": {
+            "type": "string",
+            "nullable": true
+          },
+          "ghiChu": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "TaoDeXuatRequest": {
+        "type": "object",
+        "properties": {
+          "maDeXuat": {
+            "type": "string",
+            "nullable": true
+          },
+          "maNV": {
+            "type": "string",
+            "nullable": true
+          },
+          "mucDich": {
+            "type": "string",
+            "nullable": true
+          },
+          "ngayDi": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "ngayVe": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "soTienTamUngDeNghi": {
+            "type": "number",
+            "format": "double"
+          },
+          "trangThai": {
+            "type": "string",
+            "nullable": true
+          },
+          "chiTiet": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ChiTietDuToanItemRequest"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "TaoPhieuKhaiBaoRequest": {
+        "type": "object",
+        "properties": {
+          "maDeXuat": {
+            "type": "string",
+            "nullable": true
+          },
+          "maNV": {
+            "type": "string",
+            "nullable": true
+          },
+          "chiTiet": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ChiTietKhaiBaoItemRequest"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "UserCreateRequest": {
+        "type": "object",
+        "properties": {
+          "maNV": {
+            "type": "string",
+            "nullable": true
+          },
+          "hoTen": {
+            "type": "string",
+            "nullable": true
+          },
+          "chucVu": {
+            "type": "string",
+            "nullable": true
+          },
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "maPB": {
+            "type": "string",
+            "nullable": true
+          },
+          "soTaiKhoan": {
+            "type": "string",
+            "nullable": true
+          },
+          "vaiTro": {
+            "type": "string",
+            "nullable": true
+          },
+          "matKhau": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "UserUpdateRequest": {
+        "type": "object",
+        "properties": {
+          "hoTen": {
+            "type": "string",
+            "nullable": true
+          },
+          "chucVu": {
+            "type": "string",
+            "nullable": true
+          },
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "maPB": {
+            "type": "string",
+            "nullable": true
+          },
+          "soTaiKhoan": {
+            "type": "string",
+            "nullable": true
+          },
+          "vaiTro": {
+            "type": "string",
+            "nullable": true
+          },
+          "matKhau": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  }
+}

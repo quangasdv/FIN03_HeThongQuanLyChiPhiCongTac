@@ -1,0 +1,10 @@
+{
+  "name": "quan-ly-cong-tac",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "npm --prefix QuanLyCongTac.Web run dev",
+    "build": "npm --prefix QuanLyCongTac.Web run build",
+    "preview": "npm --prefix QuanLyCongTac.Web run preview"
+  }
+}
