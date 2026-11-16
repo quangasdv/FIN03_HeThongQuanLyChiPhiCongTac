@@ -17,8 +17,7 @@ import {
 import { getTongHopQuyetToan, getDepartments } from './api';
 
 /**
- * UC-15: Xem Báo Cáo Quyết Toán Tài Chính & Xuất Excel
- * Sơ đồ Draw.io: Trang 2 & Trang 27 (activity Xem bao cao quyet toan)
+ * Xem Báo Cáo Quyết Toán Tài Chính & Xuất Excel
  * Phục vụ: 
  * - Nhân viên (scope="PERSONAL"): Chỉ xem các chuyến đi của chính mình
  * - Quản lý (scope="DEPARTMENT"): Xem các chuyến đi thuộc phòng ban của mình
@@ -35,7 +34,7 @@ export default function SettlementReportSection({
   const [loading, setLoading] = useState(false);
   const [departments, setDepartments] = useState([]);
 
-  // Bộ lọc theo sơ đồ Trang 27
+  // Bộ lọc báo cáo quyết toán
   const [searchKeyword, setSearchKeyword] = useState('');
   const [tuNgay, setTuNgay] = useState('');
   const [denNgay, setDenNgay] = useState('');
@@ -202,7 +201,7 @@ export default function SettlementReportSection({
             <div>
               <h2 className="text-lg font-bold text-slate-800">{getHeaderTitle()}</h2>
               <p className="text-xs text-slate-500 mt-0.5">
-                UC-15: Tổng hợp số liệu quyết toán, bù trừ chi phí thực tế và xuất file báo cáo thuế (Chuẩn nội địa 100% VNĐ)
+                Tổng hợp số liệu quyết toán, bù trừ chi phí thực tế và xuất file báo cáo thuế (Chuẩn nội địa 100% VNĐ)
               </p>
             </div>
           </div>

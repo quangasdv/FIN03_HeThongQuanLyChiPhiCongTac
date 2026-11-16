@@ -74,4 +74,5 @@ f:\PTPMHDT\do an ck\QuanLyCongTac\QuanLyCongTac.Api\obj\Debug\net8.0\QuanLyCongT
 f:\PTPMHDT\do an ck\QuanLyCongTac\QuanLyCongTac.Api\obj\Debug\net8.0\QuanLyCongTac.Api.genruntimeconfig.cache
 f:\PTPMHDT\do an ck\QuanLyCongTac\QuanLyCongTac.Api\obj\Debug\net8.0\ref\QuanLyCongTac.Api.dll
 f:\PTPMHDT\do an ck\QuanLyCongTac\QuanLyCongTac.Api\bin\Debug\net8.0\QuanLyCongTac.Api.staticwebassets.runtime.json
+F:\PTPMHDT\do an ck\QuanLyCongTac\QuanLyCongTac.Api\obj\Debug\net8.0\QuanLyCongTac.Api.sourcelink.json
 F:\PTPMHDT\do an ck\QuanLyCongTac\QuanLyCongTac.Api\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt

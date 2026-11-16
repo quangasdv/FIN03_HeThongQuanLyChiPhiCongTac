@@ -43,3 +43,23 @@ public class UserUpdateRequest
     public string VaiTro { get; set; } = "NHAN_VIEN";
     public string? MatKhau { get; set; }
 }
+
+public class DepartmentDto
+{
+    public string MaPB { get; set; } = string.Empty;
+    public string TenPB { get; set; } = string.Empty;
+    public int SoNhanVien { get; set; } = 0;
+}
+
+public class DepartmentCreateRequest
+{
+    public string MaPB { get; set; } = string.Empty;
+    public string TenPB { get; set; } = string.Empty;
+}
+
+public class DepartmentUpdateRequest
+{
+    public string? MaPBMoi { get; set; }
+    public string TenPB { get; set; } = string.Empty;
+}
+

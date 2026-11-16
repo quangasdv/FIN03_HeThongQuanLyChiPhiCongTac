@@ -21,15 +21,16 @@ public class DeXuatController : ControllerBase
     /// <summary>
     /// Lấy danh sách đề xuất công tác:
     /// - Hỗ trợ lọc theo mã nhân viên (maNV)
+    /// - Hỗ trợ lọc theo phòng ban (maPB)
     /// - Hỗ trợ lọc theo trạng thái (trangThai: ALL, CHO_DUYET, DA_DUYET, CHO_QUYET_TOAN, DA_CHOT_SO...)
     /// </summary>
     [HttpGet]
-    public async Task<IActionResult> GetDanhSach([FromQuery] string? maNV, [FromQuery] string? trangThai)
+    public async Task<IActionResult> GetDanhSach([FromQuery] string? maNV, [FromQuery] string? maPB, [FromQuery] string? trangThai)
     {
         try
         {
             using var connection = _db.CreateConnection();
-            var sql = "SELECT * FROM vw_DanhSachDeXuat WHERE (@MaNV IS NULL OR MaNV = @MaNV)";
+            var sql = "SELECT * FROM vw_DanhSachDeXuat WHERE (@MaNV IS NULL OR MaNV = @MaNV) AND (@MaPB IS NULL OR MaPB = @MaPB)";
 
             if (!string.IsNullOrWhiteSpace(trangThai) && trangThai != "ALL")
             {
@@ -46,11 +47,11 @@ public class DeXuatController : ControllerBase
                     _ => trangThai
                 };
                 sql += " AND TrangThai = @TrangThai";
-                var resultWithStatus = await connection.QueryAsync<DeXuatViewDto>(sql, new { MaNV = maNV, TrangThai = dbStatus });
+                var resultWithStatus = await connection.QueryAsync<DeXuatViewDto>(sql, new { MaNV = maNV, MaPB = maPB, TrangThai = dbStatus });
                 return Ok(ApiResponse<IEnumerable<DeXuatViewDto>>.Ok(resultWithStatus));
             }
 
-            var result = await connection.QueryAsync<DeXuatViewDto>(sql, new { MaNV = maNV });
+            var result = await connection.QueryAsync<DeXuatViewDto>(sql, new { MaNV = maNV, MaPB = maPB });
             return Ok(ApiResponse<IEnumerable<DeXuatViewDto>>.Ok(result));
         }
         catch (SqlException ex)
@@ -320,17 +321,18 @@ public class DeXuatController : ControllerBase
         try
         {
             using var connection = _db.CreateConnection();
+            string cleanCode = (maDeXuat ?? "").Trim();
             var dx = await connection.QueryFirstOrDefaultAsync<dynamic>(
                 "SELECT TrangThai FROM DeXuatCongTac WHERE MaDeXuat = @MaDeXuat",
-                new { maDeXuat }
+                new { MaDeXuat = cleanCode }
             );
 
             if (dx == null)
             {
-                return NotFound(ApiResponse<string>.Fail($"Không tìm thấy đề xuất '{maDeXuat}'."));
+                return NotFound(ApiResponse<string>.Fail($"Không tìm thấy đề xuất '{cleanCode}'."));
             }
 
-            string currentStatus = dx.TrangThai;
+            string currentStatus = (dx.TrangThai?.ToString() ?? "").Trim();
             if (currentStatus != "Đã tạm ứng" && currentStatus != "Đã duyệt" && currentStatus != "Chờ quyết toán")
             {
                 return BadRequest(ApiResponse<string>.Fail($"Hồ sơ đang ở trạng thái '{currentStatus}'. Chỉ chuyến đi đã được duyệt hoặc đã tạm ứng mới có thể xác nhận hoàn thành chuyến đi."));
@@ -338,10 +340,10 @@ public class DeXuatController : ControllerBase
 
             await connection.ExecuteAsync(
                 "UPDATE DeXuatCongTac SET TrangThai = N'Chờ quyết toán' WHERE MaDeXuat = @MaDeXuat",
-                new { maDeXuat }
+                new { MaDeXuat = cleanCode }
             );
 
-            return Ok(ApiResponse<string>.Ok(maDeXuat, "Xác nhận hoàn thành chuyến đi thành công. Hồ sơ đã chuyển sang Kế toán để đối soát chứng từ và chốt sổ quyết toán."));
+            return Ok(ApiResponse<string>.Ok(cleanCode, "Xác nhận hoàn thành chuyến đi thành công. Hồ sơ đã chuyển sang Kế toán để đối soát chứng từ và chốt sổ quyết toán."));
         }
         catch (SqlException ex)
         {

@@ -179,22 +179,70 @@ public class QuyetToanController : ControllerBase
 
                 string uid = Guid.NewGuid().ToString("N")[..6];
                 int idx = 1;
+                bool coKhoanVuotDinhMuc = false;
+
                 foreach (var item in request.ChiTiet)
                 {
                     string maCTKB = !string.IsNullOrWhiteSpace(item.MaCTKB) ? item.MaCTKB : $"CTKB_{uid}_{idx}";
                     string maCT = $"CT_{uid}_{idx}";
                     idx++;
 
+                    // 1. Kiểm tra đối chiếu với bảng QuyDinhDinhMuc
+                    var dinhMuc = await connection.QueryFirstOrDefaultAsync<decimal?>(@"
+                        SELECT TOP 1 qd.SoTienToiDa 
+                        FROM QuyDinhDinhMuc qd
+                        WHERE qd.MaLoaiCP = @MaLoaiCP
+                          AND (@NgayChi >= qd.NgayHieuLuc AND (qd.NgayHetHan IS NULL OR @NgayChi <= qd.NgayHetHan))
+                        ORDER BY qd.SoTienToiDa ASC",
+                        new { item.MaLoaiCP, item.NgayChi },
+                        tran
+                    );
+
+                    if (!dinhMuc.HasValue)
+                    {
+                        dinhMuc = await connection.QueryFirstOrDefaultAsync<decimal?>(@"
+                            SELECT TOP 1 qd.SoTienToiDa 
+                            FROM QuyDinhDinhMuc qd
+                            WHERE qd.MaLoaiCP = @MaLoaiCP
+                            ORDER BY qd.NgayHieuLuc DESC",
+                            new { item.MaLoaiCP },
+                            tran
+                        );
+                    }
+
+                    bool isVuotDinhMuc = dinhMuc.HasValue && item.SoTienThucTe > dinhMuc.Value;
+
+                    // Kiểm tra ràng buộc BR07: Khoản chi vượt định mức BẮT BUỘC phải có lý do giải trình ngoại lệ
+                    if (isVuotDinhMuc && string.IsNullOrWhiteSpace(item.LyDoGiaiTrinh))
+                    {
+                        string tenLcp = await connection.QueryFirstOrDefaultAsync<string>(
+                            "SELECT TenLoai FROM LoaiChiPhi WHERE MaLoaiCP = @MaLoaiCP",
+                            new { item.MaLoaiCP },
+                            tran
+                        ) ?? item.MaLoaiCP;
+
+                        tran.Rollback();
+                        return BadRequest(ApiResponse<string>.Fail(
+                            $"[Ràng buộc BR07]: Khoản chi '{tenLcp}' ({item.SoTienThucTe:N0} đ) vượt quá định mức tối đa ({dinhMuc.Value:N0} đ)! " +
+                            $"Bạn bắt buộc phải nhập 'Lý do giải trình ngoại lệ' mới được nộp hồ sơ."
+                        ));
+                    }
+
+                    if (isVuotDinhMuc) coKhoanVuotDinhMuc = true;
+
+                    string trangThaiHopLe = isVuotDinhMuc ? "Chờ duyệt ngoại lệ" : "Hợp lệ";
+
                     // Thêm ChiTietKhaiBao
                     await connection.ExecuteAsync(@"
                         INSERT INTO ChiTietKhaiBao (MaCTKB, MaKhaiBao, MaLoaiCP, NgayChi, SoTienThucTe, TrangThaiHopLe)
-                        VALUES (@MaCTKB, @MaKhaiBao, @MaLoaiCP, @NgayChi, @SoTienThucTe, N'Hợp lệ')",
+                        VALUES (@MaCTKB, @MaKhaiBao, @MaLoaiCP, @NgayChi, @SoTienThucTe, @TrangThaiHopLe)",
                         new {
                             MaCTKB = maCTKB,
                             MaKhaiBao = maKhaiBao,
                             item.MaLoaiCP,
                             item.NgayChi,
-                            item.SoTienThucTe
+                            item.SoTienThucTe,
+                            TrangThaiHopLe = trangThaiHopLe
                         },
                         tran
                     );
@@ -263,32 +311,35 @@ public class QuyetToanController : ControllerBase
                         tran
                     );
 
-                    // Thêm GiaiTrinhNgoaiLe nếu có
-                    if (!string.IsNullOrWhiteSpace(item.LyDoGiaiTrinh))
+                    // Nếu vượt định mức HOẶC nhân viên có nhập lý do giải trình -> Tạo bản ghi GiaiTrinhNgoaiLe
+                    if (isVuotDinhMuc || !string.IsNullOrWhiteSpace(item.LyDoGiaiTrinh))
                     {
                         string maGT = $"GT_{uid}_{idx}";
+                        string lyDo = (item.LyDoGiaiTrinh ?? "").Trim();
+
                         await connection.ExecuteAsync(@"
                             INSERT INTO GiaiTrinhNgoaiLe (MaGiaiTrinh, MaCTKB, LyDo, KQPheDuyet)
                             VALUES (@MaGiaiTrinh, @MaCTKB, @LyDo, N'Chờ duyệt ngoại lệ')",
                             new {
                                 MaGiaiTrinh = maGT,
                                 MaCTKB = maCTKB,
-                                LyDo = item.LyDoGiaiTrinh
+                                LyDo = lyDo
                             },
                             tran
                         );
                     }
                 }
 
-                // Cập nhật trạng thái chuyến đi sang 'Chờ quyết toán'
-                await connection.ExecuteAsync(
-                    "UPDATE DeXuatCongTac SET TrangThai = N'Chờ quyết toán' WHERE MaDeXuat = @MaDeXuat",
-                    new { request.MaDeXuat },
-                    tran
-                );
+                // Không tự ý chuyển trạng thái sang 'Chờ quyết toán' nếu chuyến đi đang 'Đã tạm ứng'
+                // Nhân viên chỉ chuyển sang 'Chờ quyết toán' khi đi về và bấm "Hoàn thành chuyến đi" (API hoan-thanh-chuyen-di)
 
                 tran.Commit();
-                return Ok(ApiResponse<string>.Ok(maKhaiBao, "Khai báo chi phí thực tế và đính kèm hóa đơn chứng từ thành công."));
+
+                string msg = coKhoanVuotDinhMuc
+                    ? "Khai báo chi phí thành công! Có khoản chi vượt định mức đã được chuyển sang Quản lý để chờ duyệt ngoại lệ."
+                    : "Khai báo chi phí thực tế và lưu chứng từ OCR thành công.";
+
+                return Ok(ApiResponse<string>.Ok(maKhaiBao, msg));
             }
             catch
             {

@@ -10,7 +10,7 @@ wwwroot\uploads\invoices\02_vinasun_taxi_real.png
 wwwroot\uploads\invoices\1441.png
 wwwroot\uploads\invoices\1728633765023.png
 wwwroot\uploads\invoices\1759803237-w-bill-3583-width975height1200.jpg
-wwwroot\uploads\invoices\CTKB_64163_1_20261115173104.jpg
+wwwroot\uploads\invoices\CTKB_5d3b8e_1_20261116054350.png
 wwwroot\uploads\invoices\CTKB_9c87a5_1_20261115210508.png
 wwwroot\uploads\invoices\image (6).png
 wwwroot\uploads\invoices\images (1).jpg
@@ -18,6 +18,11 @@ wwwroot\uploads\invoices\images.jpg
 wwwroot\uploads\invoices\xuat-hoa-don-ve-may-bay-3.webp
 wwwroot\uploads\test_tiep_khach.jpg
 wwwroot\uploads\test_ve_may_bay.jpg
-wwwroot\uploads\vinasun_real_bill.png
 wwwroot\uploads\invoices\CTKB_3c7f96_1_20261115214840.png
 wwwroot\uploads\invoices\CTKB_3c7f96_2_20261115214840.webp
+wwwroot\uploads\vinasun_real_bill.png
+wwwroot\uploads\invoices\CTKB_492d20_1_20261116060606.webp
+wwwroot\uploads\invoices\CTKB_9c417f_1_20261116062846.webp
+wwwroot\uploads\invoices\CTKB_6496a1_1_20261116062915.webp
+wwwroot\uploads\invoices\CTKB_c0a6cd_1_20261116062954.webp
+wwwroot\uploads\invoices\CTKB_fdd5b2_1_20261116071650.webp

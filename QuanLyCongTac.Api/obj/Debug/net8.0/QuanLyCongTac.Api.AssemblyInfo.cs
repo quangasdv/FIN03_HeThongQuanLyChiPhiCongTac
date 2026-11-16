@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("QuanLyCongTac.Api")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+6893db8ce0e04164afa9d17db4a14afbb4cfa23d")]
 [assembly: System.Reflection.AssemblyProductAttribute("QuanLyCongTac.Api")]
 [assembly: System.Reflection.AssemblyTitleAttribute("QuanLyCongTac.Api")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

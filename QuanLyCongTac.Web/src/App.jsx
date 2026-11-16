@@ -93,6 +93,9 @@ import {
   getUsers, 
 
   getDepartments,
+  createDepartment,
+  updateDepartment,
+  deleteDepartment,
 
   createUser,
 
@@ -967,7 +970,7 @@ export default function App() {
 
 // =========================================================================
 
-// 1. PHÂN HỆ QUẢN TRỊ VIÊN IT (ADMIN) - QUẢN LÝ NGƯỜI DÙNG & PHÂN QUYỀN (UC02 - BR02)
+// 1. PHÂN HỆ QUẢN TRỊ VIÊN IT (ADMIN) - QUẢN LÝ NGƯỜI DÙNG & PHÂN QUYỀN
 
 // =========================================================================
 
@@ -992,6 +995,17 @@ function AdminDashboard({ currentUser, activeTab, setActiveTab, showNotification
   const [roleFilter, setRoleFilter] = useState('ALL');
 
   const [deptFilter, setDeptFilter] = useState('ALL');
+
+  // Tab phân hệ Quản trị viên: 'MH-04' (Người dùng) hoặc 'MH-03' (Phòng ban)
+  const [adminTab, setAdminTab] = useState('MH-04');
+
+  // State Quản lý danh mục phòng ban (MH-03)
+  const [deptSearchTerm, setDeptSearchTerm] = useState('');
+  const [showAddDeptModal, setShowAddDeptModal] = useState(false);
+  const [showEditDeptModal, setShowEditDeptModal] = useState(false);
+  const [selectedDept, setSelectedDept] = useState(null);
+  const [deptFormData, setDeptFormData] = useState({ maPB: '', tenPB: '', maPBMoi: '' });
+  const [deptActionLoading, setDeptActionLoading] = useState(false);
 
 
 
@@ -1025,7 +1039,7 @@ function AdminDashboard({ currentUser, activeTab, setActiveTab, showNotification
 
     vaiTro: 'NHAN_VIEN',
 
-    matKhau: '123456'
+    matKhau: '123123'
 
   };
 
@@ -1131,7 +1145,7 @@ function AdminDashboard({ currentUser, activeTab, setActiveTab, showNotification
 
       vaiTro: user.vaiTro || 'NHAN_VIEN',
 
-      matKhau: user.matKhau || '123456'
+      matKhau: user.matKhau || '123123'
 
     });
 
@@ -1307,11 +1321,152 @@ function AdminDashboard({ currentUser, activeTab, setActiveTab, showNotification
 
   });
 
+  // Lọc danh sách phòng ban (MH-03)
+  const filteredDepartments = departments.filter((d) => {
+    const kw = deptSearchTerm.trim().toLowerCase();
+    if (!kw) return true;
+    return (d.maPB && d.maPB.toLowerCase().includes(kw)) ||
+           (d.tenPB && d.tenPB.toLowerCase().includes(kw));
+  });
 
+  const openAddDeptModal = () => {
+    setDeptFormData({ maPB: '', tenPB: '' });
+    setShowAddDeptModal(true);
+  };
+
+  const openEditDeptModal = (dept) => {
+    setSelectedDept(dept);
+    setDeptFormData({ maPB: dept.maPB, tenPB: dept.tenPB, maPBMoi: dept.maPB });
+    setShowEditDeptModal(true);
+  };
+
+  const handleCreateDeptSubmit = async (e) => {
+    e?.preventDefault();
+    const maPB = deptFormData.maPB?.trim().toUpperCase();
+    const tenPB = deptFormData.tenPB?.trim();
+
+    if (!maPB || !tenPB) {
+      showNotification('warning', 'Vui lòng nhập đầy đủ Mã phòng ban và Tên phòng ban.');
+      return;
+    }
+
+    setDeptActionLoading(true);
+    try {
+      const res = await createDepartment({ maPB, tenPB });
+      if (res.data && res.data.success) {
+        showNotification('success', res.data.message || 'Thêm phòng ban mới thành công!');
+        setShowAddDeptModal(false);
+        fetchUsersAndDepts();
+      } else {
+        showNotification('error', res.data?.message || 'Lỗi thêm phòng ban.');
+      }
+    } catch (err) {
+      showNotification('error', err.response?.data?.message || 'Lỗi khi thêm mới phòng ban.');
+    } finally {
+      setDeptActionLoading(false);
+    }
+  };
+
+  const handleUpdateDeptSubmit = async (e) => {
+    e?.preventDefault();
+    const newMaPB = deptFormData.maPBMoi?.trim().toUpperCase() || selectedDept?.maPB;
+    const tenPB = deptFormData.tenPB?.trim();
+
+    if (!tenPB) {
+      showNotification('warning', 'Tên phòng ban không được để trống.');
+      return;
+    }
+
+    setDeptActionLoading(true);
+    try {
+      const res = await updateDepartment(selectedDept.maPB, {
+        maPBMoi: newMaPB,
+        tenPB: tenPB
+      });
+      if (res.data && res.data.success) {
+        showNotification('success', res.data.message || 'Cập nhật phòng ban thành công!');
+        setShowEditDeptModal(false);
+        fetchUsersAndDepts();
+      } else {
+        showNotification('error', res.data?.message || 'Lỗi cập nhật phòng ban.');
+      }
+    } catch (err) {
+      showNotification('error', err.response?.data?.message || 'Lỗi khi cập nhật phòng ban.');
+    } finally {
+      setDeptActionLoading(false);
+    }
+  };
+
+  const handleDeleteDept = (dept) => {
+    if (dept.soNhanVien > 0) {
+      showNotification('warning', `Không thể xóa phòng ban '${dept.tenPB}' (${dept.maPB}) vì hiện có ${dept.soNhanVien} nhân viên trực thuộc! Vui lòng chuyển nhân sự sang phòng ban khác trước.`);
+      return;
+    }
+
+    showConfirm(
+      'Xác Nhận Xóa Phòng Ban',
+      `Bạn có chắc chắn muốn xóa phòng ban '${dept.tenPB}' (${dept.maPB}) khỏi hệ thống?`,
+      async () => {
+        try {
+          const res = await deleteDepartment(dept.maPB);
+          if (res.data && res.data.success) {
+            showNotification('success', res.data.message || 'Xóa phòng ban thành công!');
+            fetchUsersAndDepts();
+          } else {
+            showNotification('error', res.data?.message || 'Lỗi xóa phòng ban.');
+          }
+        } catch (err) {
+          showNotification('error', err.response?.data?.message || 'Lỗi khi xóa phòng ban.');
+        }
+      }
+    );
+  };
 
   return (
 
     <div className="space-y-6">
+
+      {/* Thanh điều hướng Tab Quản trị viên */}
+      <div className="border-b border-slate-200">
+        <nav className="flex space-x-6">
+          <button
+            type="button"
+            onClick={() => setAdminTab('MH-04')}
+            className={`py-2 px-1 text-sm font-semibold border-b-2 cursor-pointer flex items-center gap-2 ${
+              adminTab === 'MH-04'
+                ? 'border-rose-600 text-rose-600'
+                : 'border-transparent text-slate-500 hover:text-slate-700'
+            }`}
+          >
+            <Users className="w-4 h-4" />
+            Quản Lý Nhân Viên & Phân Quyền (MH-04)
+            <span className="px-2 py-0.5 text-xs font-bold rounded-full bg-slate-100 text-slate-700 border border-slate-200">
+              {users.length}
+            </span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setAdminTab('MH-03')}
+            className={`py-2 px-1 text-sm font-semibold border-b-2 cursor-pointer flex items-center gap-2 ${
+              adminTab === 'MH-03'
+                ? 'border-rose-600 text-rose-600'
+                : 'border-transparent text-slate-500 hover:text-slate-700'
+            }`}
+          >
+            <Building2 className="w-4 h-4" />
+            Quản Lý Danh Mục Phòng Ban (MH-03)
+            <span className="px-2 py-0.5 text-xs font-bold rounded-full bg-slate-100 text-slate-700 border border-slate-200">
+              {departments.length}
+            </span>
+          </button>
+        </nav>
+      </div>
+
+      {/* ========================================================================= */}
+      {/* PHÂN HỆ 1 (MH-04): QUẢN LÝ NHÂN VIÊN VÀ PHÂN QUYỀN                        */}
+      {/* ========================================================================= */}
+      {adminTab === 'MH-04' && (
+        <div className="space-y-6">
 
       {/* Banner giới thiệu */}
 
@@ -1415,7 +1570,7 @@ function AdminDashboard({ currentUser, activeTab, setActiveTab, showNotification
 
 
 
-      {/* Phân hệ Quản lý tài khoản & Phân quyền (UC02 - Page 15 Draw.io) */}
+      {/* Phân hệ Quản lý tài khoản & Phân quyền */}
       <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden space-y-4 p-5">
 
           {/* Thanh công cụ tìm kiếm và lọc */}
@@ -1574,7 +1729,7 @@ function AdminDashboard({ currentUser, activeTab, setActiveTab, showNotification
 
                       <td className="px-4 py-3.5 font-mono text-xs font-semibold text-slate-700">
 
-                        {u.matKhau || '123456'}
+                        {u.matKhau || '123123'}
 
                       </td>
 
@@ -2168,6 +2323,317 @@ function AdminDashboard({ currentUser, activeTab, setActiveTab, showNotification
 
       )}
 
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* PHÂN HỆ 2 (MH-03): QUẢN LÝ DANH MỤC PHÒNG BAN (Word Trang 72)             */}
+      {/* ========================================================================= */}
+      {adminTab === 'MH-03' && (
+        <div className="space-y-6">
+          {/* Banner giới thiệu MH-03 chuẩn theo tài liệu Word */}
+          <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-xs flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2.5 bg-rose-50 text-rose-600 rounded-lg">
+                <Building2 className="w-6 h-6" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <h2 className="text-base font-bold text-slate-900">
+                    Giao diện: Quản lý danh mục phòng ban (MH-03)
+                  </h2>
+                  <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-rose-50 text-rose-700 border border-rose-200">
+                    MH-03
+                  </span>
+                </div>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  Màn hình cho phép Quản trị viên thêm mới, chỉnh sửa thông tin mã và tên các phòng ban trong cơ quan.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={fetchUsersAndDepts}
+                className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition cursor-pointer"
+              >
+                <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin text-rose-600' : ''}`} />
+                Làm mới
+              </button>
+              <button
+                type="button"
+                onClick={openAddDeptModal}
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 rounded-lg transition shadow-xs cursor-pointer"
+              >
+                <Plus className="w-4 h-4" />
+                Thêm Phòng Ban Mới
+              </button>
+            </div>
+          </div>
+
+          {/* Thẻ thống kê KPI phòng ban */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs flex items-center gap-3">
+              <div className="p-3 bg-indigo-50 text-indigo-600 rounded-lg">
+                <Building2 className="w-5 h-5" />
+              </div>
+              <div>
+                <p className="text-xs text-slate-500 font-medium">Tổng Số Phòng Ban</p>
+                <p className="text-xl font-bold text-slate-900">{departments.length} phòng ban</p>
+              </div>
+            </div>
+            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs flex items-center gap-3">
+              <div className="p-3 bg-emerald-50 text-emerald-600 rounded-lg">
+                <Users className="w-5 h-5" />
+              </div>
+              <div>
+                <p className="text-xs text-slate-500 font-medium">Tổng Nhân Sự Đã Phân Bổ</p>
+                <p className="text-xl font-bold text-slate-900">
+                  {departments.reduce((acc, d) => acc + (parseInt(d.soNhanVien) || 0), 0)} nhân sự
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Bảng danh sách phòng ban */}
+          <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
+            <div className="p-4 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div className="relative flex-1 max-w-md">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                  <Search className="w-4 h-4" />
+                </div>
+                <input
+                  type="text"
+                  value={deptSearchTerm}
+                  onChange={(e) => setDeptSearchTerm(e.target.value)}
+                  placeholder="Tìm kiếm theo mã hoặc tên phòng ban..."
+                  className="w-full pl-9 pr-3 py-2 text-xs bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500"
+                />
+              </div>
+              <span className="text-xs text-slate-500 self-center">
+                Hiển thị <strong>{filteredDepartments.length}</strong> / {departments.length} phòng ban
+              </span>
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-slate-200 text-left text-sm">
+                <thead className="bg-slate-50 text-slate-600 font-semibold text-xs uppercase tracking-wider">
+                  <tr>
+                    <th className="px-6 py-3.5">STT</th>
+                    <th className="px-6 py-3.5">Mã Phòng Ban</th>
+                    <th className="px-6 py-3.5">Tên Phòng Ban</th>
+                    <th className="px-6 py-3.5 text-center">Số Nhân Viên Trực Thuộc</th>
+                    <th className="px-6 py-3.5 text-center">Thao Tác</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100 bg-white">
+                  {filteredDepartments.length === 0 ? (
+                    <tr>
+                      <td colSpan="5" className="px-6 py-8 text-center text-slate-500 text-xs">
+                        Không tìm thấy phòng ban nào phù hợp với từ khóa tìm kiếm.
+                      </td>
+                    </tr>
+                  ) : (
+                    filteredDepartments.map((dept, idx) => (
+                      <tr key={dept.maPB} className="hover:bg-slate-50 transition">
+                        <td className="px-6 py-4 text-xs text-slate-400 font-mono">{idx + 1}</td>
+                        <td className="px-6 py-4">
+                          <span className="font-mono text-xs font-bold text-rose-700 bg-rose-50 border border-rose-200 px-2.5 py-1 rounded-md">
+                            {dept.maPB}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 font-semibold text-slate-900">{dept.tenPB}</td>
+                        <td className="px-6 py-4 text-center">
+                          <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold ${
+                            dept.soNhanVien > 0
+                              ? 'bg-blue-50 text-blue-700 border border-blue-200'
+                              : 'bg-slate-100 text-slate-500 border border-slate-200'
+                          }`}>
+                            <Users className="w-3.5 h-3.5" />
+                            {dept.soNhanVien || 0} nhân sự
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 text-center">
+                          <div className="inline-flex items-center gap-2">
+                            <button
+                              type="button"
+                              onClick={() => openEditDeptModal(dept)}
+                              className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-indigo-700 bg-indigo-50 border border-indigo-200 rounded-lg hover:bg-indigo-100 transition cursor-pointer"
+                              title="Chỉnh sửa thông tin mã và tên phòng ban"
+                            >
+                              <Edit className="w-3.5 h-3.5" />
+                              Sửa
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleDeleteDept(dept)}
+                              className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-rose-700 bg-rose-50 border border-rose-200 rounded-lg hover:bg-rose-100 transition cursor-pointer"
+                              title="Xóa phòng ban (chỉ được xóa khi không còn nhân viên)"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                              Xóa
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* Modal Thêm phòng ban mới */}
+          {showAddDeptModal && (
+            <div className="fixed inset-0 bg-slate-900/60 flex items-center justify-center p-4 z-50">
+              <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
+                <div className="flex justify-between items-center border-b pb-3">
+                  <div className="flex items-center gap-2">
+                    <Building2 className="w-5 h-5 text-rose-600" />
+                    <h3 className="font-bold text-base text-slate-900">
+                      Thêm Phòng Ban Mới (MH-03)
+                    </h3>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setShowAddDeptModal(false)}
+                    className="text-slate-400 hover:text-slate-600 cursor-pointer"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+
+                <form onSubmit={handleCreateDeptSubmit} className="space-y-4">
+                  <div>
+                    <label className="block text-xs font-semibold uppercase text-slate-600 mb-1">
+                      Mã Phòng Ban (Ví dụ: PB_MKT, PB_NS, PB_KD...):
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={deptFormData.maPB}
+                      onChange={(e) => setDeptFormData({ ...deptFormData, maPB: e.target.value.toUpperCase() })}
+                      placeholder="Nhập mã phòng ban..."
+                      className="w-full p-2.5 border border-slate-300 rounded-lg text-xs font-mono font-bold focus:ring-2 focus:ring-rose-500 focus:outline-none uppercase"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold uppercase text-slate-600 mb-1">
+                      Tên Phòng Ban:
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={deptFormData.tenPB}
+                      onChange={(e) => setDeptFormData({ ...deptFormData, tenPB: e.target.value })}
+                      placeholder="Ví dụ: Phòng Marketing & Truyền thông..."
+                      className="w-full p-2.5 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-rose-500 focus:outline-none"
+                    />
+                  </div>
+
+                  <div className="flex justify-end gap-2 pt-2 border-t border-slate-100">
+                    <button
+                      type="button"
+                      onClick={() => setShowAddDeptModal(false)}
+                      className="px-4 py-2 bg-slate-100 text-slate-700 rounded-lg text-xs font-semibold hover:bg-slate-200 transition cursor-pointer"
+                    >
+                      Hủy bỏ
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={deptActionLoading}
+                      className="px-4 py-2 bg-rose-600 text-white rounded-lg text-xs font-semibold hover:bg-rose-700 transition cursor-pointer flex items-center gap-1.5"
+                    >
+                      {deptActionLoading ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Plus className="w-3.5 h-3.5" />}
+                      Thêm Mới
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
+
+          {/* Modal Chỉnh sửa phòng ban */}
+          {showEditDeptModal && selectedDept && (
+            <div className="fixed inset-0 bg-slate-900/60 flex items-center justify-center p-4 z-50">
+              <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">
+                <div className="flex justify-between items-center border-b pb-3">
+                  <div className="flex items-center gap-2">
+                    <Edit className="w-5 h-5 text-indigo-600" />
+                    <h3 className="font-bold text-base text-slate-900">
+                      Chỉnh Sửa Phòng Ban: {selectedDept.maPB}
+                    </h3>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setShowEditDeptModal(false)}
+                    className="text-slate-400 hover:text-slate-600 cursor-pointer"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+
+                <form onSubmit={handleUpdateDeptSubmit} className="space-y-4">
+                  <div>
+                    <label className="block text-xs font-semibold uppercase text-slate-600 mb-1">
+                      Mã Phòng Ban (Cho phép cập nhật):
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={deptFormData.maPBMoi}
+                      onChange={(e) => setDeptFormData({ ...deptFormData, maPBMoi: e.target.value.toUpperCase() })}
+                      className="w-full p-2.5 border border-slate-300 rounded-lg text-xs font-mono font-bold focus:ring-2 focus:ring-indigo-500 focus:outline-none uppercase"
+                    />
+                    <p className="text-[11px] text-slate-500 mt-1">
+                      * Nếu đổi mã phòng ban, hệ thống sẽ tự động cập nhật liên đới đến tất cả nhân sự đang trực thuộc.
+                    </p>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold uppercase text-slate-600 mb-1">
+                      Tên Phòng Ban:
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={deptFormData.tenPB}
+                      onChange={(e) => setDeptFormData({ ...deptFormData, tenPB: e.target.value })}
+                      className="w-full p-2.5 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                    />
+                  </div>
+
+                  <div className="p-3 bg-slate-50 rounded-lg border border-slate-200 text-xs text-slate-600 flex items-center justify-between">
+                    <span>Số nhân viên trực thuộc hiện tại:</span>
+                    <strong className="text-slate-900 font-bold">{selectedDept.soNhanVien || 0} nhân sự</strong>
+                  </div>
+
+                  <div className="flex justify-end gap-2 pt-2 border-t border-slate-100">
+                    <button
+                      type="button"
+                      onClick={() => setShowEditDeptModal(false)}
+                      className="px-4 py-2 bg-slate-100 text-slate-700 rounded-lg text-xs font-semibold hover:bg-slate-200 transition cursor-pointer"
+                    >
+                      Hủy bỏ
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={deptActionLoading}
+                      className="px-4 py-2 bg-indigo-600 text-white rounded-lg text-xs font-semibold hover:bg-indigo-700 transition cursor-pointer flex items-center gap-1.5"
+                    >
+                      {deptActionLoading ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Check className="w-3.5 h-3.5" />}
+                      Lưu Thay Đổi
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
 
     </div>
 
@@ -2197,6 +2663,10 @@ function ManagerDashboard({ currentUser, activeTab, setActiveTab, formatVND, for
 
   const [actionLoading, setActionLoading] = useState(false);
 
+  // Bộ lọc trạng thái đề xuất & tìm kiếm của Quản lý
+  const [managerFilterStatus, setManagerFilterStatus] = useState('CHO_DUYET');
+  const [searchManagerKeyword, setSearchManagerKeyword] = useState('');
+
 
 
   // Tab 2: Phê duyệt ngoại lệ chi phí 
@@ -2207,7 +2677,7 @@ function ManagerDashboard({ currentUser, activeTab, setActiveTab, formatVND, for
 
   const [ngoaiLeActionLoading, setNgoaiLeActionLoading] = useState(false);
 
-  // UC-06: Nhắc nhở duyệt đơn tự động (Scheduler Sơ đồ Trang 19)
+  // Nhắc nhở duyệt đơn tự động (Scheduler)
   const [schedulerModal, setSchedulerModal] = useState({ isOpen: false, data: null, loading: false });
   const [donTonDongList, setDonTonDongList] = useState([]);
 
@@ -2228,13 +2698,13 @@ function ManagerDashboard({ currentUser, activeTab, setActiveTab, formatVND, for
 
 
 
-  const fetchDonChoDuyet = async () => {
+  const fetchDonChoDuyet = async (targetStatus = managerFilterStatus) => {
 
     setLoading(true);
 
     try {
 
-      const res = await getDanhSachDeXuat({ maPB: currentUser.maPB, trangThai: 'CHO_DUYET' });
+      const res = await getDanhSachDeXuat({ maPB: currentUser.maPB, trangThai: targetStatus });
 
       if (res.data && res.data.success) {
 
@@ -2262,6 +2732,16 @@ function ManagerDashboard({ currentUser, activeTab, setActiveTab, formatVND, for
     }
 
   };
+
+  const filteredManagerList = danhSach.filter((item) => {
+    const kw = searchManagerKeyword.trim().toLowerCase();
+    if (!kw) return true;
+    return (
+      item.maDeXuat?.toLowerCase().includes(kw) ||
+      item.tenNhanVien?.toLowerCase().includes(kw) ||
+      item.mucDich?.toLowerCase().includes(kw)
+    );
+  });
 
 
 
@@ -2542,10 +3022,10 @@ function ManagerDashboard({ currentUser, activeTab, setActiveTab, formatVND, for
           <div className="px-6 py-4 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div className="flex items-center gap-2">
               <h3 className="font-bold text-sm text-slate-800">
-                Danh Sách Đề Xuất Đang Chờ Phê Duyệt
+                Hồ Sơ Đề Xuất Công Tác - Đơn Vị {currentUser.tenPB || currentUser.maPB}
               </h3>
               <span className="text-xs text-amber-700 font-bold bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200">
-                {danhSach.length} đơn cần xử lý
+                {filteredManagerList.length} hồ sơ
               </span>
             </div>
 
@@ -2561,7 +3041,7 @@ function ManagerDashboard({ currentUser, activeTab, setActiveTab, formatVND, for
               </button>
               <button
                 type="button"
-                onClick={fetchDonChoDuyet}
+                onClick={() => fetchDonChoDuyet(managerFilterStatus)}
                 disabled={loading}
                 className="px-2.5 py-1.5 text-xs font-semibold border border-slate-300 rounded-lg hover:bg-slate-50 transition flex items-center gap-1 text-slate-700 cursor-pointer"
                 title="Làm mới danh sách"
@@ -2572,7 +3052,66 @@ function ManagerDashboard({ currentUser, activeTab, setActiveTab, formatVND, for
             </div>
           </div>
 
-          {/* Cảnh báo nhắc nhở tự động UC-06 */}
+          {/* Thanh công cụ lọc tình trạng đơn & tìm kiếm */}
+          <div className="px-6 py-3 bg-slate-50 border-b border-slate-200 flex flex-col md:flex-row md:items-center justify-between gap-3">
+            <div className="flex flex-wrap items-center gap-3">
+              <div className="relative min-w-[220px]">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                  <Search className="w-3.5 h-3.5" />
+                </div>
+                <input
+                  type="text"
+                  value={searchManagerKeyword}
+                  onChange={(e) => setSearchManagerKeyword(e.target.value)}
+                  placeholder="Tìm theo mã, tên NV hoặc mục đích..."
+                  className="w-full pl-9 pr-3 py-1.5 text-xs bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500"
+                />
+              </div>
+
+              <div className="flex items-center gap-1.5">
+                <Filter className="w-3.5 h-3.5 text-slate-500" />
+                <span className="text-xs font-semibold text-slate-600">Tình trạng đơn:</span>
+                <select
+                  value={managerFilterStatus}
+                  onChange={(e) => {
+                    const nextStatus = e.target.value;
+                    setManagerFilterStatus(nextStatus);
+                    fetchDonChoDuyet(nextStatus);
+                  }}
+                  className="px-3 py-1.5 text-xs font-semibold bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 cursor-pointer"
+                >
+                  <option value="CHO_DUYET">Chờ phê duyệt (Cần xử lý)</option>
+                  <option value="ALL">Tất cả tình trạng đơn</option>
+                  <option value="DA_DUYET">Đã phê duyệt</option>
+                  <option value="TU_CHOI">Đã từ chối</option>
+                  <option value="DA_TAM_UNG">Đã tạm ứng</option>
+                  <option value="CHO_QUYET_TOAN">Chờ quyết toán</option>
+                  <option value="DA_CHOT_SO">Đã chốt sổ quyết toán</option>
+                  <option value="BAN_NHAP">Bản nháp</option>
+                  <option value="DA_HUY">Đã hủy</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 self-start md:self-auto text-xs text-slate-500">
+              <span>Hiển thị: <strong>{filteredManagerList.length}</strong> / {danhSach.length} hồ sơ</span>
+              {(managerFilterStatus !== 'CHO_DUYET' || searchManagerKeyword) && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setManagerFilterStatus('CHO_DUYET');
+                    setSearchManagerKeyword('');
+                    fetchDonChoDuyet('CHO_DUYET');
+                  }}
+                  className="text-xs text-amber-700 hover:text-amber-900 font-semibold cursor-pointer underline ml-2"
+                >
+                  Đặt lại lọc
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Cảnh báo nhắc nhở tự động */}
           {donTonDongList.some(d => d.daQuaHan3Ngay) && (
             <div className="px-6 py-3 bg-amber-50 border-b border-amber-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-amber-900">
               <div className="flex items-center gap-2">
@@ -2591,52 +3130,33 @@ function ManagerDashboard({ currentUser, activeTab, setActiveTab, formatVND, for
             </div>
           )}
 
-
-
-          {danhSach.length === 0 ? (
-
+          {filteredManagerList.length === 0 ? (
             <div className="p-12 text-center text-slate-500">
-
               <CheckCircle2 className="w-10 h-10 text-emerald-500 mx-auto mb-2" />
-
-              <p className="text-sm font-semibold">Hiện không có đơn nào đang chờ duyệt.</p>
-
+              <p className="text-sm font-semibold">
+                {danhSach.length > 0
+                  ? 'Không tìm thấy đơn nào phù hợp với bộ lọc hiện tại.'
+                  : 'Hiện không có đơn nào ở trạng thái này.'}
+              </p>
             </div>
-
           ) : (
-
             <div className="overflow-x-auto">
-
               <table className="min-w-full divide-y divide-slate-200 text-left text-sm">
-
                 <thead className="bg-slate-50 text-slate-600 font-semibold text-xs uppercase tracking-wider">
-
                   <tr>
-
                     <th className="px-6 py-3.5">Mã Đề Xuất</th>
-
                     <th className="px-6 py-3.5">Người Đề Xuất</th>
-
                     <th className="px-6 py-3.5">Mục Đích</th>
-
                     <th className="px-6 py-3.5">Thời Gian</th>
-
                     <th className="px-6 py-3.5 text-right">Tổng Dự Toán</th>
-
                     <th className="px-6 py-3.5 text-right">Tạm Ứng Đề Nghị</th>
-
+                    <th className="px-6 py-3.5 text-center">Tình Trạng</th>
                     <th className="px-6 py-3.5 text-center">Thao Tác</th>
-
                   </tr>
-
                 </thead>
-
                 <tbody className="divide-y divide-slate-100 bg-white">
-
-                  {danhSach.map((item) => (
-
+                  {filteredManagerList.map((item) => (
                     <tr key={item.maDeXuat} className="hover:bg-slate-50">
-
                       <td className="px-6 py-4 font-mono font-bold text-indigo-700">
                         <div>{item.maDeXuat}</div>
                         {donTonDongList.find(d => d.maDeXuat === item.maDeXuat)?.daQuaHan3Ngay && (
@@ -2645,37 +3165,36 @@ function ManagerDashboard({ currentUser, activeTab, setActiveTab, formatVND, for
                           </span>
                         )}
                       </td>
-
                       <td className="px-6 py-4 font-semibold text-slate-900">{item.tenNhanVien}</td>
-
                       <td className="px-6 py-4 max-w-xs truncate">{item.mucDich}</td>
-
                       <td className="px-6 py-4 text-xs text-slate-600">{formatDate(item.ngayDi)} → {formatDate(item.ngayVe)}</td>
-
                       <td className="px-6 py-4 text-right font-bold text-slate-900">{formatVND(item.tongKinhPhiDuToan)}</td>
-
                       <td className="px-6 py-4 text-right font-medium text-purple-700">{formatVND(item.soTienTamUngDeNghi)}</td>
-
                       <td className="px-6 py-4 text-center">
-
-                        <button
-
-                          onClick={() => setSelectedDon(item)}
-
-                          className="px-3 py-1.5 bg-indigo-600 text-white rounded-lg text-xs font-semibold hover:bg-indigo-700 transition cursor-pointer"
-
-                        >
-
-                          Xem & Phê Duyệt
-
-                        </button>
-
+                        {getTrangThaiBadge(item.trangThai)}
                       </td>
-
+                      <td className="px-6 py-4 text-center">
+                        {['Chờ duyệt', 'CHO_DUYET'].includes(item.trangThai) ? (
+                          <button
+                            type="button"
+                            onClick={() => setSelectedDon(item)}
+                            className="px-3 py-1.5 bg-amber-600 text-white rounded-lg text-xs font-semibold hover:bg-amber-700 transition cursor-pointer"
+                          >
+                            Xét Duyệt
+                          </button>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => setSelectedDon(item)}
+                            className="inline-flex items-center gap-1 px-2.5 py-1 bg-slate-100 text-slate-700 border border-slate-300 rounded-lg text-xs font-semibold hover:bg-slate-200 transition cursor-pointer mx-auto"
+                          >
+                            <Eye className="w-3.5 h-3.5 text-slate-500" />
+                            Xem Chi Tiết
+                          </button>
+                        )}
+                      </td>
                     </tr>
-
                   ))}
-
                 </tbody>
 
               </table>
@@ -2912,71 +3431,64 @@ function ManagerDashboard({ currentUser, activeTab, setActiveTab, formatVND, for
 
               <p><strong>Tạm ứng đề nghị:</strong> {formatVND(selectedDon.soTienTamUngDeNghi)}</p>
 
-            </div>
+              <div className="flex items-center gap-2 pt-1 border-t border-slate-200">
+                <span className="font-semibold text-slate-700">Tình trạng đơn:</span>
+                {getTrangThaiBadge(selectedDon.trangThai)}
+              </div>
 
-
-
-            <div>
-
-              <label className="block text-xs font-semibold uppercase text-slate-600 mb-1">
-
-                Ý Kiến Chỉ Đạo / Ghi Chú Phê Duyệt:
-
-              </label>
-
-              <textarea
-
-                rows="3"
-
-                value={ghiChu}
-
-                onChange={(e) => setGhiChu(e.target.value)}
-
-                placeholder="Nhập lý do phê duyệt hoặc lý do từ chối..."
-
-                className="w-full p-2.5 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-indigo-500 focus:outline-none"
-
-              ></textarea>
+              {selectedDon.lyDoTuChoi && (
+                <div className="p-2.5 bg-rose-50 border border-rose-200 rounded-lg text-rose-800">
+                  <strong>Lý do từ chối:</strong> {selectedDon.lyDoTuChoi}
+                </div>
+              )}
 
             </div>
 
+            {['Chờ duyệt', 'CHO_DUYET'].includes(selectedDon.trangThai) ? (
+              <>
+                <div>
+                  <label className="block text-xs font-semibold uppercase text-slate-600 mb-1">
+                    Ý Kiến Chỉ Đạo / Ghi Chú Phê Duyệt:
+                  </label>
+                  <textarea
+                    rows="3"
+                    value={ghiChu}
+                    onChange={(e) => setGhiChu(e.target.value)}
+                    placeholder="Nhập lý do phê duyệt hoặc lý do từ chối..."
+                    className="w-full p-2.5 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-amber-500 focus:outline-none"
+                  ></textarea>
+                </div>
 
-
-            <div className="flex justify-end gap-3 pt-2">
-
-              <button
-
-                type="button"
-
-                disabled={actionLoading}
-
-                onClick={() => handleXetDuyet('TU_CHOI')}
-
-                className="px-4 py-2 bg-rose-600 text-white rounded-lg text-xs font-semibold hover:bg-rose-700 transition cursor-pointer"
-
-              >
-
-                Từ Chối
-
-              </button>
-
-              <button
-
-                type="button"
-
-                disabled={actionLoading}
-
-                onClick={() => handleXetDuyet('DUYET')}
-
-                className="px-4 py-2 bg-emerald-600 text-white rounded-lg text-xs font-semibold hover:bg-emerald-700 transition cursor-pointer"
-
-              >
-
-                Phê Duyệt
-
-              </button>
-
-            </div>
+                <div className="flex justify-end gap-3 pt-2 border-t border-slate-100">
+                  <button
+                    type="button"
+                    disabled={actionLoading}
+                    onClick={() => handleXetDuyet('TU_CHOI')}
+                    className="px-4 py-2 bg-rose-600 text-white rounded-lg text-xs font-semibold hover:bg-rose-700 transition cursor-pointer"
+                  >
+                    Từ Chối
+                  </button>
+                  <button
+                    type="button"
+                    disabled={actionLoading}
+                    onClick={() => handleXetDuyet('DUYET')}
+                    className="px-4 py-2 bg-emerald-600 text-white rounded-lg text-xs font-semibold hover:bg-emerald-700 transition cursor-pointer"
+                  >
+                    Phê Duyệt
+                  </button>
+                </div>
+              </>
+            ) : (
+              <div className="flex justify-end pt-2 border-t border-slate-100">
+                <button
+                  type="button"
+                  onClick={() => setSelectedDon(null)}
+                  className="px-4 py-2 bg-slate-100 text-slate-700 rounded-lg text-xs font-semibold hover:bg-slate-200 transition cursor-pointer"
+                >
+                  Đóng
+                </button>
+              </div>
+            )}
 
           </div>
 
@@ -2994,7 +3506,7 @@ function ManagerDashboard({ currentUser, activeTab, setActiveTab, formatVND, for
         />
       )}
 
-      {/* Modal hiển thị nhật ký quét định thời UC-06 */}
+      {/* Modal hiển thị nhật ký quét định thời */}
       {schedulerModal.isOpen && (
         <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-xl border border-slate-200 animate-in fade-in zoom-in-95 duration-200">
@@ -3083,7 +3595,7 @@ function ManagerDashboard({ currentUser, activeTab, setActiveTab, formatVND, for
 
 // =========================================================================
 
-function AccountantDashboard({ currentUser, activeTab, setActiveTab, formatVND, formatDate, showNotification, showConfirm }) {
+function AccountantDashboard({ currentUser, activeTab, setActiveTab, formatVND, formatDate, getTrangThaiBadge, showNotification, showConfirm }) {
 
   // Tab 1: Đơn đã duyệt chờ chi tạm ứng
 
@@ -3096,6 +3608,14 @@ function AccountantDashboard({ currentUser, activeTab, setActiveTab, formatVND, 
   const [soTienChi, setSoTienChi] = useState('');
 
   const [tamUngLoading, setTamUngLoading] = useState(false);
+
+  // Bộ lọc trạng thái chi tạm ứng & tìm kiếm
+  const [tamUngFilterStatus, setTamUngFilterStatus] = useState('DA_DUYET');
+  const [searchTamUngKeyword, setSearchTamUngKeyword] = useState('');
+
+  // Bộ lọc trạng thái hồ sơ quyết toán & tìm kiếm
+  const [quyetToanFilterStatus, setQuyetToanFilterStatus] = useState('CHO_QUYET_TOAN');
+  const [searchQuyetToanKeyword, setSearchQuyetToanKeyword] = useState('');
 
 
 
@@ -3175,11 +3695,13 @@ function AccountantDashboard({ currentUser, activeTab, setActiveTab, formatVND, 
 
   // Fetch dữ liệu tương ứng tab
 
-  const fetchChoTamUng = async () => {
+  const fetchChoTamUng = async (status = tamUngFilterStatus) => {
+
+    setTamUngLoading(true);
 
     try {
 
-      const res = await getDanhSachDeXuat({ trangThai: 'DA_DUYET' });
+      const res = await getDanhSachDeXuat({ trangThai: status });
 
       if (res.data && res.data.success) {
 
@@ -3191,15 +3713,19 @@ function AccountantDashboard({ currentUser, activeTab, setActiveTab, formatVND, 
 
       console.error(err);
 
+    } finally {
+
+      setTamUngLoading(false);
+
     }
 
   };
 
 
 
-  const fetchChoQuyetToan = async () => {
+  const fetchChoQuyetToan = async (status = quyetToanFilterStatus) => {
     try {
-      const res = await getDanhSachDeXuat({ trangThai: 'CHO_QUYET_TOAN' });
+      const res = await getDanhSachDeXuat({ trangThai: status });
       if (res.data && res.data.success) {
         setChoQuyetToanList(res.data.data || []);
       }
@@ -3207,6 +3733,26 @@ function AccountantDashboard({ currentUser, activeTab, setActiveTab, formatVND, 
       console.error(err);
     }
   };
+
+  const filteredTamUngList = choTamUng.filter((item) => {
+    const kw = searchTamUngKeyword.trim().toLowerCase();
+    if (!kw) return true;
+    return (
+      item.maDeXuat?.toLowerCase().includes(kw) ||
+      item.tenNhanVien?.toLowerCase().includes(kw) ||
+      item.mucDich?.toLowerCase().includes(kw)
+    );
+  });
+
+  const filteredQuyetToanList = choQuyetToanList.filter((item) => {
+    const kw = searchQuyetToanKeyword.trim().toLowerCase();
+    if (!kw) return true;
+    return (
+      item.maDeXuat?.toLowerCase().includes(kw) ||
+      item.tenNhanVien?.toLowerCase().includes(kw) ||
+      item.mucDich?.toLowerCase().includes(kw)
+    );
+  });
 
   const fetchChungTu = async () => {
     try {
@@ -3763,31 +4309,98 @@ function AccountantDashboard({ currentUser, activeTab, setActiveTab, formatVND, 
 
         <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
 
-          <div className="px-6 py-4 border-b border-slate-200 flex justify-between items-center">
+          <div className="px-6 py-4 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
 
-            <h3 className="font-bold text-sm text-slate-800">
+            <div className="flex items-center gap-2">
+              <h3 className="font-bold text-sm text-slate-800">
+                Quản Lý Hồ Sơ Chi Tạm Ứng Kinh Phí Công Tác
+              </h3>
+              <span className="text-xs text-purple-700 font-bold bg-purple-50 px-2.5 py-0.5 rounded-full border border-purple-200">
+                {filteredTamUngList.length} đề xuất
+              </span>
+            </div>
 
-              Danh Sách Đề Xuất Đã Duyệt Chờ Chi Tạm Ứng
-
-            </h3>
-
-            <span className="text-xs text-purple-700 font-bold bg-purple-50 px-2 py-0.5 rounded-full border border-purple-200">
-
-              {choTamUng.length} đề xuất
-
-            </span>
+            <button
+              type="button"
+              onClick={() => fetchChoTamUng(tamUngFilterStatus)}
+              disabled={tamUngLoading}
+              className="px-2.5 py-1.5 text-xs font-semibold border border-slate-300 rounded-lg hover:bg-slate-50 transition flex items-center gap-1 text-slate-700 cursor-pointer self-start sm:self-auto"
+              title="Làm mới danh sách"
+            >
+              <RefreshCw className={`w-3.5 h-3.5 ${tamUngLoading ? 'animate-spin text-purple-600' : ''}`} />
+              Làm mới
+            </button>
 
           </div>
 
+          {/* Thanh công cụ lọc tình trạng đơn & tìm kiếm */}
+          <div className="px-6 py-3 bg-slate-50 border-b border-slate-200 flex flex-col md:flex-row md:items-center justify-between gap-3">
+            <div className="flex flex-wrap items-center gap-3">
+              <div className="relative min-w-[220px]">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                  <Search className="w-3.5 h-3.5" />
+                </div>
+                <input
+                  type="text"
+                  value={searchTamUngKeyword}
+                  onChange={(e) => setSearchTamUngKeyword(e.target.value)}
+                  placeholder="Tìm theo mã, tên NV hoặc mục đích..."
+                  className="w-full pl-9 pr-3 py-1.5 text-xs bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                />
+              </div>
 
+              <div className="flex items-center gap-1.5">
+                <Filter className="w-3.5 h-3.5 text-slate-500" />
+                <span className="text-xs font-semibold text-slate-600">Tình trạng đơn:</span>
+                <select
+                  value={tamUngFilterStatus}
+                  onChange={(e) => {
+                    const nextStatus = e.target.value;
+                    setTamUngFilterStatus(nextStatus);
+                    fetchChoTamUng(nextStatus);
+                  }}
+                  className="px-3 py-1.5 text-xs font-semibold bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 cursor-pointer"
+                >
+                  <option value="DA_DUYET">Chờ chi tạm ứng (Đã duyệt)</option>
+                  <option value="DA_TAM_UNG">Đã chi tạm ứng</option>
+                  <option value="ALL">Tất cả đề xuất</option>
+                  <option value="CHO_QUYET_TOAN">Chờ quyết toán</option>
+                  <option value="DA_CHOT_SO">Đã chốt sổ</option>
+                  <option value="TU_CHOI">Từ chối</option>
+                  <option value="BAN_NHAP">Bản nháp</option>
+                </select>
+              </div>
+            </div>
 
-          {choTamUng.length === 0 ? (
+            <div className="flex items-center gap-2 self-start md:self-auto text-xs text-slate-500">
+              <span>Hiển thị: <strong>{filteredTamUngList.length}</strong> / {choTamUng.length} đề xuất</span>
+              {(tamUngFilterStatus !== 'DA_DUYET' || searchTamUngKeyword) && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setTamUngFilterStatus('DA_DUYET');
+                    setSearchTamUngKeyword('');
+                    fetchChoTamUng('DA_DUYET');
+                  }}
+                  className="text-xs text-purple-700 hover:text-purple-900 font-semibold cursor-pointer underline ml-2"
+                >
+                  Đặt lại về "Chờ chi"
+                </button>
+              )}
+            </div>
+          </div>
+
+          {filteredTamUngList.length === 0 ? (
 
             <div className="p-12 text-center text-slate-500">
 
               <CheckCircle2 className="w-10 h-10 text-emerald-500 mx-auto mb-2" />
 
-              <p className="text-sm font-semibold">Hiện không có đơn nào đang chờ chi tạm ứng.</p>
+              <p className="text-sm font-semibold">
+                {choTamUng.length > 0
+                  ? 'Không tìm thấy đề xuất nào phù hợp với bộ lọc hiện tại.'
+                  : 'Hiện không có đơn nào ở trạng thái này.'}
+              </p>
 
             </div>
 
@@ -3811,6 +4424,8 @@ function AccountantDashboard({ currentUser, activeTab, setActiveTab, formatVND, 
 
                     <th className="px-6 py-3.5 text-right">Tạm Ứng Đề Nghị</th>
 
+                    <th className="px-6 py-3.5 text-center">Tình Trạng</th>
+
                     <th className="px-6 py-3.5 text-center">Thao Tác</th>
 
                   </tr>
@@ -3819,7 +4434,7 @@ function AccountantDashboard({ currentUser, activeTab, setActiveTab, formatVND, 
 
                 <tbody className="divide-y divide-slate-100 bg-white">
 
-                  {choTamUng.map((item) => (
+                  {filteredTamUngList.map((item) => (
 
                     <tr key={item.maDeXuat} className="hover:bg-slate-50">
 
@@ -3834,24 +4449,36 @@ function AccountantDashboard({ currentUser, activeTab, setActiveTab, formatVND, 
                       <td className="px-6 py-4 text-right font-bold text-purple-700">{formatVND(item.soTienTamUngDeNghi)}</td>
 
                       <td className="px-6 py-4 text-center">
+                        {getTrangThaiBadge(item.trangThai)}
+                      </td>
 
-                        <button
+                      <td className="px-6 py-4 text-center">
 
-                          onClick={() => {
+                        {['Đã duyệt', 'DA_DUYET'].includes(item.trangThai) ? (
+                          <button
 
-                            setSelectedTamUng(item);
-                            setMaTamUng('TU_' + Date.now().toString().slice(-4) + '_' + Math.floor(100 + Math.random() * 900));
-                            setSoTienChi(item.soTienTamUngDeNghi);
+                            onClick={() => {
 
-                          }}
+                              setSelectedTamUng(item);
+                              setMaTamUng('TU_' + Date.now().toString().slice(-4) + '_' + Math.floor(100 + Math.random() * 900));
+                              setSoTienChi(item.soTienTamUngDeNghi);
 
-                          className="px-3 py-1.5 bg-purple-600 text-white rounded-lg text-xs font-semibold hover:bg-purple-700 transition cursor-pointer"
+                            }}
 
-                        >
+                            className="px-3 py-1.5 bg-purple-600 text-white rounded-lg text-xs font-semibold hover:bg-purple-700 transition cursor-pointer"
 
-                          Lập Phiếu Chi
+                          >
 
-                        </button>
+                            Lập Phiếu Chi
+
+                          </button>
+                        ) : item.trangThai === 'Đã tạm ứng' ? (
+                          <span className="text-xs font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-1 rounded">
+                            Đã chi: {formatVND(item.soTienTamUngThucTe || item.soTienTamUngDeNghi)}
+                          </span>
+                        ) : (
+                          <span className="text-xs text-slate-400 font-medium">---</span>
+                        )}
 
                       </td>
 
@@ -3991,21 +4618,21 @@ function AccountantDashboard({ currentUser, activeTab, setActiveTab, formatVND, 
 
       {activeTab === 'tab2' && (
         <div className="space-y-6">
-          {/* PHẦN 1: HỒ SƠ CHỜ QUYẾT TOÁN (NHÂN VIÊN ĐÃ HOÀN THÀNH CHUYẾN ĐI) */}
+          {/* PHẦN 1: HỒ SƠ QUYẾT TOÁN TÀI CHÍNH */}
           <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
             <div className="px-6 py-4 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
               <div>
                 <h3 className="font-bold text-sm text-slate-900 flex items-center gap-2">
                   <FileCheck className="w-4 h-4 text-emerald-600" />
-                  Hồ Sơ Đã Hoàn Thành Chờ Quyết Toán Tài Chính
+                  Hồ Sơ Quyết Toán & Đối Soát Tài Chính
                 </h3>
                 <p className="text-xs text-slate-500 mt-0.5">
-                  Chỉ các hồ sơ nhân viên đã đi công tác về và bấm "Hoàn thành chuyến đi" mới sẵn sàng để mở ra đối soát và chốt sổ
+                  Theo dõi các chuyến đi từ khi tạm ứng, đi công tác về đến khi chốt sổ quyết toán bù trừ
                 </p>
               </div>
               <button
                 type="button"
-                onClick={() => { fetchChoQuyetToan(); fetchChungTu(); }}
+                onClick={() => { fetchChoQuyetToan(quyetToanFilterStatus); fetchChungTu(); }}
                 className="px-2.5 py-1 text-xs font-semibold border border-slate-300 rounded-lg hover:bg-slate-50 transition flex items-center gap-1 text-slate-700 cursor-pointer self-start sm:self-auto"
               >
                 <RefreshCw className="w-3.5 h-3.5 text-emerald-600" />
@@ -4013,10 +4640,68 @@ function AccountantDashboard({ currentUser, activeTab, setActiveTab, formatVND, 
               </button>
             </div>
 
-            {choQuyetToanList.length === 0 ? (
+            {/* Thanh công cụ lọc tình trạng đơn & tìm kiếm */}
+            <div className="px-6 py-3 bg-slate-50 border-b border-slate-200 flex flex-col md:flex-row md:items-center justify-between gap-3">
+              <div className="flex flex-wrap items-center gap-3">
+                <div className="relative min-w-[220px]">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                    <Search className="w-3.5 h-3.5" />
+                  </div>
+                  <input
+                    type="text"
+                    value={searchQuyetToanKeyword}
+                    onChange={(e) => setSearchQuyetToanKeyword(e.target.value)}
+                    placeholder="Tìm theo mã, người đi hoặc mục đích..."
+                    className="w-full pl-9 pr-3 py-1.5 text-xs bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  />
+                </div>
+
+                <div className="flex items-center gap-1.5">
+                  <Filter className="w-3.5 h-3.5 text-slate-500" />
+                  <span className="text-xs font-semibold text-slate-600">Tình trạng hồ sơ:</span>
+                  <select
+                    value={quyetToanFilterStatus}
+                    onChange={(e) => {
+                      const nextStatus = e.target.value;
+                      setQuyetToanFilterStatus(nextStatus);
+                      fetchChoQuyetToan(nextStatus);
+                    }}
+                    className="px-3 py-1.5 text-xs font-semibold bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer"
+                  >
+                    <option value="CHO_QUYET_TOAN">Chờ quyết toán (Nhân viên đã hoàn thành)</option>
+                    <option value="DA_TAM_UNG">Đang đi công tác (Đã tạm ứng)</option>
+                    <option value="DA_CHOT_SO">Đã chốt sổ quyết toán</option>
+                    <option value="ALL">Tất cả hồ sơ</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 self-start md:self-auto text-xs text-slate-500">
+                <span>Hiển thị: <strong>{filteredQuyetToanList.length}</strong> / {choQuyetToanList.length} hồ sơ</span>
+                {(quyetToanFilterStatus !== 'CHO_QUYET_TOAN' || searchQuyetToanKeyword) && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setQuyetToanFilterStatus('CHO_QUYET_TOAN');
+                      setSearchQuyetToanKeyword('');
+                      fetchChoQuyetToan('CHO_QUYET_TOAN');
+                    }}
+                    className="text-xs text-emerald-700 hover:text-emerald-900 font-semibold cursor-pointer underline ml-2"
+                  >
+                    Đặt lại về "Chờ quyết toán"
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {filteredQuyetToanList.length === 0 ? (
               <div className="p-8 text-center text-xs text-slate-500 bg-slate-50/50">
                 <Clock className="w-8 h-8 text-slate-300 mx-auto mb-2" />
-                <p className="font-semibold text-slate-700">Hiện không có hồ sơ nào chờ quyết toán.</p>
+                <p className="font-semibold text-slate-700">
+                  {choQuyetToanList.length > 0
+                    ? 'Không tìm thấy hồ sơ nào phù hợp với bộ lọc hiện tại.'
+                    : 'Hiện không có hồ sơ nào ở trạng thái này.'}
+                </p>
                 <p className="text-slate-400 mt-0.5">
                   Sau khi nhân viên đi công tác về và bấm <strong>"Hoàn thành chuyến đi"</strong>, hồ sơ sẽ lập tức hiển thị tại đây để Kế toán mở ra chọn Hướng Xử Lý và chốt sổ.
                 </p>
@@ -4036,7 +4721,7 @@ function AccountantDashboard({ currentUser, activeTab, setActiveTab, formatVND, 
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 bg-white">
-                    {choQuyetToanList.map((trip) => (
+                    {filteredQuyetToanList.map((trip) => (
                       <tr key={trip.maDeXuat} className="hover:bg-slate-50/80 transition">
                         <td className="px-6 py-4 font-mono font-bold text-indigo-700">
                           {trip.maDeXuat}
@@ -4055,19 +4740,30 @@ function AccountantDashboard({ currentUser, activeTab, setActiveTab, formatVND, 
                           {formatVND(trip.soTienTamUngThucTe || trip.soTienTamUngDeNghi || 0)}
                         </td>
                         <td className="px-6 py-4 text-center">
-                          <span className="px-2.5 py-1 text-xs font-semibold rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200">
-                            Chờ quyết toán
-                          </span>
+                          {getTrangThaiBadge(trip.trangThai)}
                         </td>
                         <td className="px-6 py-4 text-center">
-                          <button
-                            type="button"
-                            onClick={() => openSettlementModal(trip)}
-                            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 text-white rounded-lg text-xs font-bold hover:bg-emerald-700 transition cursor-pointer shadow-xs"
-                          >
-                            <FileCheck className="w-3.5 h-3.5" />
-                            Xem Chi Tiết & Quyết Toán
-                          </button>
+                          {['Chờ quyết toán', 'CHO_QUYET_TOAN'].includes(trip.trangThai) ? (
+                            <button
+                              type="button"
+                              onClick={() => openSettlementModal(trip)}
+                              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 text-white rounded-lg text-xs font-bold hover:bg-emerald-700 transition cursor-pointer shadow-xs"
+                            >
+                              <FileCheck className="w-3.5 h-3.5" />
+                              Mở Đối Soát & Chốt Sổ
+                            </button>
+                          ) : trip.trangThai === 'Đã chốt sổ' ? (
+                            <button
+                              type="button"
+                              onClick={() => openSettlementModal(trip)}
+                              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-indigo-50 text-indigo-700 border border-indigo-200 rounded-lg text-xs font-bold hover:bg-indigo-100 transition cursor-pointer shadow-xs"
+                            >
+                              <Eye className="w-3.5 h-3.5" />
+                              Xem Hồ Sơ Quyết Toán
+                            </button>
+                          ) : (
+                            <span className="text-xs text-slate-400 font-medium">Đang thực hiện</span>
+                          )}
                         </td>
                       </tr>
                     ))}
@@ -4138,7 +4834,7 @@ function AccountantDashboard({ currentUser, activeTab, setActiveTab, formatVND, 
 
 
 
-      {/* Tab 3: Báo cáo tổng hợp quyết toán (UC-15 theo sơ đồ) */}
+      {/* Tab 3: Báo cáo tổng hợp quyết toán */}
       {activeTab === 'tab3' && (
         <SettlementReportSection
           currentUser={currentUser}
@@ -4315,23 +5011,47 @@ function AccountantDashboard({ currentUser, activeTab, setActiveTab, formatVND, 
                                 <span className="text-[10px] font-bold text-slate-600 uppercase block mb-1">
                                   Nội dung quét thô từ hóa đơn (OCR Raw Text):
                                 </span>
-                                <div className="p-2.5 bg-slate-900 text-emerald-400 font-mono text-[11px] rounded-lg max-h-28 overflow-y-auto whitespace-pre-wrap leading-relaxed border border-slate-800">
+                                <div className="p-2.5 bg-white text-slate-900 font-mono text-[11px] rounded-lg max-h-28 overflow-y-auto whitespace-pre-wrap leading-relaxed border border-slate-300 shadow-2xs select-text">
                                   {rawOcrText}
                                 </div>
                               </div>
 
                               {/* GIẢI TRÌNH NGOẠI LỆ (NẾU CÓ) */}
-                              {currentClaim.lyDoGiaiTrinh && (
-                                <div className="p-2.5 bg-amber-50 border border-amber-200 rounded-lg text-xs space-y-1">
-                                  <span className="text-[10px] font-bold text-amber-800 uppercase block">
-                                    Văn bản giải trình chi phí ngoại lệ của nhân viên:
-                                  </span>
-                                  <p className="text-amber-900 italic">"{currentClaim.lyDoGiaiTrinh}"</p>
-                                  <p className="text-[10px] font-semibold text-emerald-700">
-                                    ✓ Quản lý phòng ban đã phê duyệt đặc cách ngoại lệ khoản chi này
-                                  </p>
-                                </div>
-                              )}
+                              {(() => {
+                                const isApproved = currentClaim.ketQuaDuyetNgoaiLe === 'Đã duyệt đặc cách' || (currentClaim.trangThaiHopLe || '').includes('Đặc cách');
+                                const isRejected = currentClaim.ketQuaDuyetNgoaiLe === 'Từ chối ngoại lệ' || (currentClaim.trangThaiHopLe || '').includes('Không duyệt');
+                                const isPending = !isApproved && !isRejected && ((currentClaim.trangThaiHopLe || '').includes('Chờ') || currentClaim.ketQuaDuyetNgoaiLe === 'Chờ duyệt ngoại lệ');
+
+                                if (!currentClaim.lyDoGiaiTrinhNgoaiLe && !currentClaim.lyDoGiaiTrinh && !isApproved && !isRejected && !isPending) {
+                                  return null;
+                                }
+
+                                return (
+                                  <div className={`p-2.5 rounded-lg text-xs space-y-1 border ${
+                                    isPending ? 'bg-amber-50 border-amber-300' : isRejected ? 'bg-rose-50 border-rose-300' : 'bg-emerald-50 border-emerald-300'
+                                  }`}>
+                                    <span className="text-[10px] font-bold uppercase block text-slate-800">
+                                      Giải trình ngoại lệ chi phí:
+                                    </span>
+                                    {(currentClaim.lyDoGiaiTrinhNgoaiLe || currentClaim.lyDoGiaiTrinh) && (
+                                      <p className="text-slate-900 italic">"{currentClaim.lyDoGiaiTrinhNgoaiLe || currentClaim.lyDoGiaiTrinh}"</p>
+                                    )}
+                                    {isPending ? (
+                                      <p className="text-[10px] font-bold text-amber-700 flex items-center gap-1">
+                                        ⏳ Khoản chi vượt định mức đang chờ Quản lý duyệt đặc cách
+                                      </p>
+                                    ) : isApproved ? (
+                                      <p className="text-[10px] font-semibold text-emerald-700 flex items-center gap-1">
+                                        ✓ Quản lý phòng ban đã phê duyệt đặc cách ngoại lệ khoản chi này
+                                      </p>
+                                    ) : isRejected ? (
+                                      <p className="text-[10px] font-semibold text-rose-700 flex items-center gap-1">
+                                        ✕ Quản lý đã từ chối ngoại lệ (Khoản chi bị loại trừ, không thanh toán)
+                                      </p>
+                                    ) : null}
+                                  </div>
+                                );
+                              })()}
                             </div>
 
                             {/* KHU VỰC KẾ TOÁN DUYỆT SỐ TIỀN & ĐIỀU CHỈNH */}
@@ -4408,9 +5128,25 @@ function AccountantDashboard({ currentUser, activeTab, setActiveTab, formatVND, 
                                 {formatVND(editingClaimAmounts[claim.maCTKB] ?? claim.soTienThucTe)}
                               </td>
                               <td className="px-4 py-2.5 text-center">
-                                <span className="px-2 py-0.5 text-[10px] font-bold rounded-full bg-emerald-50 text-emerald-800 border border-emerald-300">
-                                  {claim.trangThaiHopLe}
-                                </span>
+                                {(() => {
+                                  const isApproved = claim.ketQuaDuyetNgoaiLe === 'Đã duyệt đặc cách' || (claim.trangThaiHopLe || '').includes('Đặc cách');
+                                  const isRejected = claim.ketQuaDuyetNgoaiLe === 'Từ chối ngoại lệ' || (claim.trangThaiHopLe || '').includes('Không duyệt');
+                                  const isPending = !isApproved && !isRejected && ((claim.trangThaiHopLe || '').includes('Chờ') || claim.ketQuaDuyetNgoaiLe === 'Chờ duyệt ngoại lệ');
+
+                                  const badgeText = isApproved ? 'Hợp lệ (Đặc cách)' : isRejected ? 'Không duyệt ngoại lệ' : (claim.trangThaiHopLe || 'Hợp lệ');
+
+                                  return (
+                                    <span className={`px-2 py-0.5 text-[10px] font-bold rounded-full border ${
+                                      isPending 
+                                        ? 'bg-amber-50 text-amber-800 border-amber-300 animate-pulse'
+                                        : isRejected
+                                        ? 'bg-rose-50 text-rose-800 border-rose-300'
+                                        : 'bg-emerald-50 text-emerald-800 border-emerald-300'
+                                    }`}>
+                                      {badgeText}
+                                    </span>
+                                  );
+                                })()}
                               </td>
                               <td className="px-4 py-2.5 text-center">
                                 <button
@@ -4485,24 +5221,46 @@ function AccountantDashboard({ currentUser, activeTab, setActiveTab, formatVND, 
                           </div>
 
                           {/* Nút hành động */}
-                          <div className="flex justify-end items-center gap-3 pt-2">
-                            <button
-                              type="button"
-                              onClick={() => setSettlementModal({ isOpen: false, trip: null, claims: [], loading: false })}
-                              className="px-4 py-2 border border-slate-300 text-slate-700 rounded-lg text-xs font-semibold hover:bg-slate-100 transition cursor-pointer"
-                            >
-                              Đóng
-                            </button>
-                            <button
-                              type="button"
-                              onClick={handleConfirmSettlementFromModal}
-                              disabled={chotLoading}
-                              className="px-5 py-2 bg-emerald-600 text-white rounded-lg text-xs font-bold hover:bg-emerald-700 transition cursor-pointer flex items-center gap-2 shadow-sm"
-                            >
-                              <CheckCircle2 className="w-4 h-4" />
-                              {chotLoading ? 'Đang chốt sổ...' : 'Xác Nhận Chốt Sổ Quyết Toán & Khóa Hồ Sơ'}
-                            </button>
-                          </div>
+                          {(() => {
+                            const hasPendingException = settlementModal.claims.some(c => {
+                              const isApproved = c.ketQuaDuyetNgoaiLe === 'Đã duyệt đặc cách' || (c.trangThaiHopLe || '').includes('Đặc cách');
+                              const isRejected = c.ketQuaDuyetNgoaiLe === 'Từ chối ngoại lệ' || (c.trangThaiHopLe || '').includes('Không duyệt');
+                              return !isApproved && !isRejected && ((c.trangThaiHopLe || '').includes('Chờ') || c.ketQuaDuyetNgoaiLe === 'Chờ duyệt ngoại lệ');
+                            });
+                            return (
+                              <div className="space-y-3 pt-2">
+                                {hasPendingException && (
+                                  <div className="p-3 bg-amber-50 border border-amber-300 rounded-lg flex items-center gap-2 text-xs text-amber-800 font-semibold">
+                                    <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
+                                    <span>Hồ sơ có khoản chi vượt định mức đang chờ Quản lý duyệt đặc cách ngoại lệ. Kế toán không thể chốt sổ cho đến khi Quản lý hoàn tất duyệt ngoại lệ!</span>
+                                  </div>
+                                )}
+                                <div className="flex justify-end items-center gap-3">
+                                  <button
+                                    type="button"
+                                    onClick={() => setSettlementModal({ isOpen: false, trip: null, claims: [], loading: false })}
+                                    className="px-4 py-2 border border-slate-300 text-slate-700 rounded-lg text-xs font-semibold hover:bg-slate-100 transition cursor-pointer"
+                                  >
+                                    Đóng
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={handleConfirmSettlementFromModal}
+                                    disabled={chotLoading || hasPendingException}
+                                    title={hasPendingException ? 'Vui lòng chờ Quản lý phê duyệt ngoại lệ trước khi chốt sổ' : ''}
+                                    className={`px-5 py-2 rounded-lg text-xs font-bold transition flex items-center gap-2 shadow-sm ${
+                                      hasPendingException
+                                        ? 'bg-slate-300 text-slate-500 cursor-not-allowed opacity-75'
+                                        : 'bg-emerald-600 text-white hover:bg-emerald-700 cursor-pointer'
+                                    }`}
+                                  >
+                                    <CheckCircle2 className="w-4 h-4" />
+                                    {chotLoading ? 'Đang chốt sổ...' : 'Xác Nhận Chốt Sổ Quyết Toán & Khóa Hồ Sơ'}
+                                  </button>
+                                </div>
+                              </div>
+                            );
+                          })()}
                         </div>
                       );
                     })()}
@@ -4599,7 +5357,7 @@ function AccountantDashboard({ currentUser, activeTab, setActiveTab, formatVND, 
               {/* Thông tin OCR */}
               <div>
                 <h4 className="text-xs font-bold text-slate-700 mb-2">Thông Tin Bóc Tách OCR AI:</h4>
-                <div className="p-3 bg-slate-900 text-emerald-400 font-mono text-xs rounded-xl overflow-x-auto">
+                <div className="p-3 bg-white text-slate-900 font-mono text-xs rounded-xl overflow-x-auto border border-slate-300 shadow-2xs select-text">
                   {previewChungTuModal.item.dataBocTach ? (
                     <pre className="whitespace-pre-wrap leading-relaxed">
                       {(() => {
@@ -5047,23 +5805,21 @@ function AccountantDashboard({ currentUser, activeTab, setActiveTab, formatVND, 
 
 // =========================================================================
 // 4. PHÂN HỆ NHÂN VIÊN (NHAN_VIEN - NV01)
-// Căn cứ thiết kế:
-// - UC03: Lập đề xuất công tác (Page 16 Draw.io)
-// - UC03 Phân rã: «extend» Lưu bản nháp 
-// - UC04: Lịch sử & Theo dõi trạng thái đơn (Page 17 Draw.io)
-// - UC09: Khai báo chi phí thực tế & Đính kèm chứng từ OCR (Page 22 Draw.io)
-// - BR04 (Ngày về >= Ngày đi), BR08 (Tạm ứng <= 100% Dự toán), BR10 (Hủy đơn chờ duyệt/Sửa nộp lại)
-// - BR13 (Chứng từ <= 500MB), BR14 (Ngày chi trong thời gian chuyến đi)
+// Chức năng:
+// - Lập đề xuất công tác & Lưu bản nháp 
+// - Lịch sử & Theo dõi trạng thái đơn
+// - Khai báo chi phí thực tế & Đính kèm chứng từ OCR
 // =========================================================================
 function EmployeeDashboard({ currentUser, activeTab, setActiveTab, formatVND, formatDate, getTrangThaiBadge, showNotification, showConfirm }) {
   // Bộ lọc trạng thái đề xuất 
   const [filterTrangThai, setFilterTrangThai] = useState('ALL');
   const [searchTripKeyword, setSearchTripKeyword] = useState('');
 
-  // Cấu hình Google Lens & Gemini Vision AI
-  const [geminiApiKey, setGeminiApiKey] = useState(() => localStorage.getItem('FIN03_GEMINI_KEY') || '');
+  // Cấu hình Google Gemini Vision AI (Công nghệ quét tiêu chuẩn - Nhập qua giao diện hoặc lưu trong localStorage)
+  const DEFAULT_GEMINI_KEY = '';
+  const [geminiApiKey, setGeminiApiKey] = useState(() => localStorage.getItem('FIN03_GEMINI_KEY') || DEFAULT_GEMINI_KEY);
   const [showAiKeyModal, setShowAiKeyModal] = useState(false);
-  const [aiKeyInput, setAiKeyInput] = useState(() => localStorage.getItem('FIN03_GEMINI_KEY') || '');
+  const [aiKeyInput, setAiKeyInput] = useState(() => localStorage.getItem('FIN03_GEMINI_KEY') || DEFAULT_GEMINI_KEY);
 
   const [danhSach, setDanhSach] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -5137,9 +5893,37 @@ function EmployeeDashboard({ currentUser, activeTab, setActiveTab, formatVND, fo
     }
   };
 
+  const [dinhMucList, setDinhMucList] = useState([]);
+
+  const getDinhMucToiDa = (maLoaiCP) => {
+    const found = dinhMucList.find(d => (d.maLoaiCP || d.MaLoaiCP) === maLoaiCP);
+    return found ? (found.soTienToiDa || found.SoTienToiDa || 0) : null;
+  };
+
+  const getCategoryName = (code) => {
+    const map = {
+      CP_VEMAYBAY: 'Vé máy bay khứ hồi',
+      CP_KHACHSAN: 'Tiền thuê phòng khách sạn',
+      CP_DIENTHOAI: 'Cước di chuyển & Taxi',
+      CP_TIEPKHACH: 'Chi phí tiếp khách & Ngoại giao'
+    };
+    return map[code] || code;
+  };
+
   useEffect(() => {
     fetchMyTrips();
+    getDinhMuc().then(res => {
+      if (res.data?.success) setDinhMucList(res.data.data || []);
+    }).catch(() => {});
   }, []);
+
+  useEffect(() => {
+    if (activeTab === 'tab3') {
+      getDinhMuc().then(res => {
+        if (res.data?.success) setDinhMucList(res.data.data || []);
+      }).catch(() => {});
+    }
+  }, [activeTab]);
 
   const resetProposalForm = () => {
     setMaDeXuat(genNewMaDeXuat());
@@ -5163,11 +5947,12 @@ function EmployeeDashboard({ currentUser, activeTab, setActiveTab, formatVND, fo
     ]);
   };
 
-  const handleHoanThanhChuyenDi = async (maDx) => {
-    showConfirm(
-      'Xác Nhận Hoàn Thành Chuyến Đi',
-      `Bạn đã đi công tác về và hoàn thành chuyến đi '${maDx}'? Hồ sơ sẽ được chuyển sang Kế toán để đối soát chứng từ và chốt sổ quyết toán.`,
-      async () => {
+  const handleHoanThanhChuyenDi = (maDx) => {
+    showConfirm({
+      title: 'Xác Nhận Hoàn Thành Chuyến Đi',
+      message: `Bạn đã đi công tác về và hoàn thành chuyến đi '${maDx}'? Hồ sơ sẽ được chuyển sang Kế toán để đối soát chứng từ và chốt sổ quyết toán.`,
+      confirmText: 'Hoàn Thành Chuyến Đi',
+      onConfirm: async () => {
         try {
           const res = await hoanThanhChuyenDi(maDx);
           if (res.data && res.data.success) {
@@ -5180,14 +5965,14 @@ function EmployeeDashboard({ currentUser, activeTab, setActiveTab, formatVND, fo
           showNotification('error', err.response?.data?.message || 'Lỗi khi xác nhận hoàn thành chuyến đi.');
         }
       }
-    );
+    });
   };
 
   const removeChiTietRow = (index) => {
     setChiTietItems(chiTietItems.filter((_, i) => i !== index));
   };
 
-  // UC03 & Page 5 Draw.io: Lập đề xuất hỗ trợ 2 chế độ:
+  // Lập đề xuất hỗ trợ 2 chế độ:
   // 1. targetStatus = 'Bản nháp': Lưu tạm, chưa gửi Quản lý phê duyệt
   // 2. targetStatus = 'Chờ duyệt': Gửi phê duyệt chính thức (kích hoạt SP sp_TaoDeXuatVaDuToan & trg_CheckDinhMucDuToan)
   const handleSaveProposal = async (targetStatus = 'Chờ duyệt') => {
@@ -5202,24 +5987,36 @@ function EmployeeDashboard({ currentUser, activeTab, setActiveTab, formatVND, fo
         return;
       }
 
-      // BR04: Ngày kết thúc >= Ngày bắt đầu
+      // Ngày kết thúc >= Ngày bắt đầu
       if (new Date(ngayVe) < new Date(ngayDi)) {
         showNotification('error', 'Ngày kết thúc chuyến đi phải lớn hơn hoặc bằng ngày bắt đầu (Ngày về >= Ngày đi).');
         return;
       }
 
-      // BR05: Phải có ít nhất 1 khoản chi dự toán
+      // Phải có ít nhất 1 khoản chi dự toán
       if (!chiTietItems.length) {
         showNotification('warning', 'Đề xuất công tác bắt buộc phải có ít nhất một khoản chi dự toán.');
         return;
       }
 
-      // BR08: Số tiền tạm ứng đề nghị không vượt quá 100% tổng dự toán
+      // Số tiền tạm ứng đề nghị không vượt quá 100% tổng dự toán
       const tongDuToan = chiTietItems.reduce((acc, c) => acc + (parseFloat(c.soTienDuKien) || 0), 0);
       const tamUngVal = parseFloat(tamUngDeNghi) || 0;
       if (tamUngVal > tongDuToan) {
         showNotification('error', `Số tiền tạm ứng đề nghị (${formatVND(tamUngVal)}) không được vượt quá 100% tổng dự toán (${formatVND(tongDuToan)}).`);
         return;
+      }
+
+      // Ràng buộc BR07: Kiểm tra nếu số tiền dự kiến vượt định mức thì BẮT BUỘC phải có giải trình
+      for (let i = 0; i < chiTietItems.length; i++) {
+        const it = chiTietItems[i];
+        const limit = getDinhMucToiDa(it.maLoaiCP);
+        const amount = parseFloat(it.soTienDuKien) || 0;
+        if (limit && amount > limit && !it.lyDoGiaiTrinh?.trim()) {
+          const catName = getCategoryName(it.maLoaiCP);
+          showNotification('warning', `Khoản chi dự toán #${i + 1} (${catName} - ${formatVND(amount)}) vượt quá định mức tối đa (${formatVND(limit)})! Bạn bắt buộc phải nhập "Giải trình vượt mức" trước khi gửi duyệt.`);
+          return;
+        }
       }
     }
 
@@ -5279,7 +6076,7 @@ function EmployeeDashboard({ currentUser, activeTab, setActiveTab, formatVND, fo
     }
   };
 
-  // Mở bản nháp hoặc đơn bị từ chối để chỉnh sửa (Page 5 Draw.io & BR10)
+  // Mở bản nháp hoặc đơn bị từ chối để chỉnh sửa
   const handleEditDraft = async (maDx) => {
     try {
       const res = await getDeXuatDetail(maDx);
@@ -5354,7 +6151,7 @@ function EmployeeDashboard({ currentUser, activeTab, setActiveTab, formatVND, fo
     });
   };
 
-  // BR10: Hủy đơn khi đang Chờ duyệt
+  // Hủy đơn khi đang Chờ duyệt
   const handleCancelPendingProposal = (maDx) => {
     showConfirm({
       title: 'Hủy Đề Xuất Công Tác',
@@ -5378,7 +6175,7 @@ function EmployeeDashboard({ currentUser, activeTab, setActiveTab, formatVND, fo
   };
 
   // =========================================================================
-  // XỬ LÝ TẢI ẢNH CHỨNG TỪ & QUÉT OCR (UC09, UC13 - BR13, BR14)
+  // XỬ LÝ TẢI ẢNH CHỨNG TỪ & QUÉT OCR
   // =========================================================================
   const addClaimRow = () => {
     setClaimItems([
@@ -5404,7 +6201,7 @@ function EmployeeDashboard({ currentUser, activeTab, setActiveTab, formatVND, fo
 
   // =========================================================================
   // =========================================================================
-  // BỘ PHÂN TÍCH THÔNG MINH DỮ LIỆU TỪ VĂN BẢN OCR (UC09, UC13)
+  // BỘ PHÂN TÍCH THÔNG MINH DỮ LIỆU TỪ VĂN BẢN OCR
   // =========================================================================
 
   // TIỀN XỬ LÝ ẢNH BẰNG CANVAS (Tăng độ tương phản, khử nhiễu, chuyển nhị phân trắng đen)
@@ -5445,10 +6242,44 @@ function EmployeeDashboard({ currentUser, activeTab, setActiveTab, formatVND, fo
     });
   };
 
+  // NÉN VÀ THU NHỎ ẢNH TỐC ĐỘ CAO CHO AI (Giảm từ 10MB xuống ~150KB để gửi Google AI trong 0.2s)
+  const compressImageForAi = (dataUrl, maxDim = 1400, quality = 0.85) => {
+    return new Promise((resolve) => {
+      try {
+        const img = new Image();
+        img.onload = () => {
+          let w = img.width;
+          let h = img.height;
+          if (w > maxDim || h > maxDim) {
+            if (w > h) {
+              h = Math.round((h * maxDim) / w);
+              w = maxDim;
+            } else {
+              w = Math.round((w * maxDim) / h);
+              h = maxDim;
+            }
+          }
+          const canvas = document.createElement('canvas');
+          canvas.width = w;
+          canvas.height = h;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, w, h);
+          resolve(canvas.toDataURL('image/jpeg', quality));
+        };
+        img.onerror = () => resolve(dataUrl);
+        img.src = dataUrl;
+      } catch {
+        resolve(dataUrl);
+      }
+    });
+  };
+
   // QUÉT HÓA ĐƠN BẰNG GOOGLE GEMINI VISION AI (Công nghệ Google Lens)
   const scanWithGeminiVision = async (base64Data, mimeType, apiKey) => {
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
-    const cleanBase64 = base64Data.includes(',') ? base64Data.split(',')[1] : base64Data;
+    // Tối ưu hóa: nén ảnh nhẹ trước khi gửi để tốc độ phản hồi chỉ 1-2 giây
+    const optimizedDataUrl = await compressImageForAi(base64Data, 1400, 0.85);
+    const cleanBase64 = optimizedDataUrl.includes(',') ? optimizedDataUrl.split(',')[1] : optimizedDataUrl;
+
     const prompt = `Bạn là hệ thống AI quét hóa đơn kế toán thông minh (tương tự Google Lens / Google Vision).
 Nhiệm vụ của bạn là đọc và phân tích ảnh chụp hóa đơn, vé máy bay, chứng từ chi tiêu công tác này.
 Hãy trả về DUY NHẤT một chuỗi JSON hợp lệ (không kèm theo bất kỳ giải thích, markdown code block nào) với cấu trúc sau:
@@ -5469,26 +6300,51 @@ Lưu ý quan trọng:
       contents: [{
         parts: [
           { text: prompt },
-          { inline_data: { mime_type: mimeType || 'image/png', data: cleanBase64 } }
+          { inline_data: { mime_type: 'image/jpeg', data: cleanBase64 } }
         ]
-      }]
+      }],
+      generationConfig: {
+        responseMimeType: 'application/json',
+        temperature: 0.1
+      }
     };
 
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
+    // Endpoint model Google Vision AI tối ưu tốc độ phản hồi 1-2s (gemini-flash-lite-latest)
+    const models = ['gemini-flash-lite-latest', 'gemini-3.1-flash-lite', 'gemini-flash-latest'];
+    let lastError = null;
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error?.message || `Lỗi từ Google Gemini API (${response.status})`);
+    for (const m of models) {
+      try {
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent?key=${apiKey}`;
+        const response = await fetch(url, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-goog-api-key': apiKey
+          },
+          body: JSON.stringify(payload)
+        });
+
+        if (response.ok) {
+          const result = await response.json();
+          const textOutput = result?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+          const cleanJsonStr = textOutput.replace(/```json/gi, '').replace(/```/g, '').trim();
+          const jsonMatch = cleanJsonStr.match(/\{[\s\S]*\}/);
+          if (jsonMatch) {
+            return JSON.parse(jsonMatch[0]);
+          }
+          return JSON.parse(cleanJsonStr);
+        } else {
+          const errBody = await response.json().catch(() => ({}));
+          console.warn(`[Google AI ${m}]:`, response.status, errBody);
+          lastError = new Error(errBody.error?.message || `Lỗi từ Google Vision API ${m} (${response.status})`);
+        }
+      } catch (err) {
+        lastError = err;
+      }
     }
 
-    const result = await response.json();
-    const textOutput = result?.candidates?.[0]?.content?.parts?.[0]?.text || '';
-    const cleanJsonStr = textOutput.replace(/```json/gi, '').replace(/```/g, '').trim();
-    return JSON.parse(cleanJsonStr);
+    throw lastError || new Error('Không thể kết nối Google Lens / Vision AI.');
   };
 
   const parseOcrInvoiceText = (text, fileName, defaultCategory, tripDate) => {
@@ -5862,8 +6718,8 @@ Lưu ý quan trọng:
       let isGeminiUsed = false;
       let aiResultData = null;
 
-      // ƯU TIÊN 1: Nếu người dùng đã cấu hình Google Gemini API Key -> Dùng AI Vision (Google Lens)
-      const activeGeminiKey = (geminiApiKey || localStorage.getItem('FIN03_GEMINI_KEY') || '').trim();
+      // ƯU TIÊN 1: Nếu có Google Gemini API Key -> Dùng AI Vision (Google Lens)
+      const activeGeminiKey = (geminiApiKey || localStorage.getItem('FIN03_GEMINI_KEY') || DEFAULT_GEMINI_KEY || '').trim();
       if (activeGeminiKey) {
         try {
           setClaimItems((prev) => {
@@ -6004,7 +6860,7 @@ Lưu ý quan trọng:
       return next;
     });
 
-    const activeGeminiKey = (geminiApiKey || localStorage.getItem('FIN03_GEMINI_KEY') || '').trim();
+    const activeGeminiKey = (geminiApiKey || localStorage.getItem('FIN03_GEMINI_KEY') || DEFAULT_GEMINI_KEY || '').trim();
     const tripDate = selectedTripForClaim?.ngayDi?.split('T')[0] || new Date().toISOString().split('T')[0];
 
     if (activeGeminiKey) {
@@ -6091,7 +6947,7 @@ Lưu ý quan trọng:
     const ngayDiTrip = new Date(selectedTripForClaim.ngayDi?.split('T')[0]);
     const ngayVeTrip = new Date(selectedTripForClaim.ngayVe?.split('T')[0]);
 
-    // Kiểm tra tính hợp lệ BR13 và BR14
+    // Kiểm tra tính hợp lệ chứng từ và thời gian chi phí
     for (let i = 0; i < claimItems.length; i++) {
       const it = claimItems[i];
       if (!it.ngayChi) {
@@ -6099,7 +6955,7 @@ Lưu ý quan trọng:
         return;
       }
 
-      // BR14: Ngày chi phải nằm trong khoảng thời gian chuyến đi (NgayDi <= NgayChi <= NgayVe)
+      // Ngày chi phải nằm trong khoảng thời gian chuyến đi (NgayDi <= NgayChi <= NgayVe)
       const ngayChiDate = new Date(it.ngayChi);
       if (ngayChiDate < ngayDiTrip || ngayChiDate > ngayVeTrip) {
         showNotification('error', `Ngày chi (${formatDate(it.ngayChi)}) của khoản chi #${i + 1} phải nằm trong khoảng thời gian chuyến đi (${formatDate(selectedTripForClaim.ngayDi)} → ${formatDate(selectedTripForClaim.ngayVe)}).`);
@@ -6111,9 +6967,18 @@ Lưu ý quan trọng:
         return;
       }
 
-      // BR13: Kiểm tra đính kèm chứng từ và dung lượng <= 500MB
+      // Kiểm tra đính kèm chứng từ và dung lượng <= 500MB
       if (!it.dungLuongMB || it.dungLuongMB <= 0 || it.dungLuongMB > 500.0) {
         showNotification('error', `Dung lượng chứng từ khoản chi #${i + 1} phải từ 0.05MB đến tối đa 500MB (hiện tại: ${it.dungLuongMB}MB).`);
+        return;
+      }
+
+      // Ràng buộc BR07: Kiểm tra nếu số tiền thực tế vượt định mức thì BẮT BUỘC phải có lý do giải trình
+      const limit = getDinhMucToiDa(it.maLoaiCP);
+      const amount = parseFloat(it.soTienThucTe) || 0;
+      if (limit && amount > limit && !it.lyDoGiaiTrinh?.trim()) {
+        const catName = getCategoryName(it.maLoaiCP);
+        showNotification('warning', `Khoản chi #${i + 1} (${catName} - ${formatVND(amount)}) vượt quá định mức quy định (${formatVND(limit)})! Bạn bắt buộc phải nhập "Lý do giải trình ngoại lệ" trước khi nộp hồ sơ.`);
         return;
       }
     }
@@ -6136,7 +7001,8 @@ Lưu ý quan trọng:
 
       const res = await khaiBaoChiPhi(payload);
       if (res.data && res.data.success) {
-        showNotification('success', res.data.message || 'Khai báo chi phí thực tế và gửi chứng từ OCR đến Kế toán thành công!');
+        const isWarning = res.data.message?.includes('vượt định mức') || res.data.message?.includes('vượt hạn mức');
+        showNotification(isWarning ? 'warning' : 'success', res.data.message || 'Lưu khai báo chi phí thực tế thành công! Bạn có thể tiếp tục bổ sung hóa đơn hoặc bấm "Hoàn thành chuyến đi" ở danh sách khi đã nộp đủ.');
         setSelectedTripForClaim(null);
         setActiveTab('tab1');
         fetchMyTrips();
@@ -6249,19 +7115,92 @@ Lưu ý quan trọng:
             </div>
           </div>
 
+          {/* Thanh công cụ lọc tình trạng đơn & tìm kiếm */}
+          <div className="px-6 py-3 bg-slate-50 border-b border-slate-200 flex flex-col md:flex-row md:items-center justify-between gap-3">
+            <div className="flex flex-wrap items-center gap-3">
+              <div className="relative min-w-[220px]">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                  <Search className="w-3.5 h-3.5" />
+                </div>
+                <input
+                  type="text"
+                  value={searchTripKeyword}
+                  onChange={(e) => setSearchTripKeyword(e.target.value)}
+                  placeholder="Tìm theo mã hoặc mục đích..."
+                  className="w-full pl-9 pr-3 py-1.5 text-xs bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+
+              <div className="flex items-center gap-1.5">
+                <Filter className="w-3.5 h-3.5 text-slate-500" />
+                <span className="text-xs font-semibold text-slate-600">Tình trạng đơn:</span>
+                <select
+                  value={filterTrangThai}
+                  onChange={(e) => setFilterTrangThai(e.target.value)}
+                  className="px-3 py-1.5 text-xs font-semibold bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
+                >
+                  <option value="ALL">Tất cả tình trạng ({countAll})</option>
+                  <option value="Bản nháp">Bản nháp ({countDraft})</option>
+                  <option value="Chờ duyệt">Chờ duyệt ({countPending})</option>
+                  <option value="Đã duyệt">Đã duyệt ({countApproved})</option>
+                  <option value="Đã tạm ứng">Đã tạm ứng ({countAdvanced})</option>
+                  <option value="Chờ quyết toán">Chờ quyết toán ({countSettling})</option>
+                  <option value="Đã chốt sổ">Đã chốt sổ ({countSettled})</option>
+                  <option value="Từ chối">Từ chối ({countRejected})</option>
+                  <option value="Đã hủy">Đã hủy</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 self-start md:self-auto text-xs text-slate-500">
+              <span>Hiển thị: <strong>{filteredTrips.length}</strong> / {danhSach.length} chuyến đi</span>
+              {(filterTrangThai !== 'ALL' || searchTripKeyword) && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setFilterTrangThai('ALL');
+                    setSearchTripKeyword('');
+                  }}
+                  className="text-xs text-blue-600 hover:text-blue-800 font-semibold cursor-pointer underline ml-2"
+                >
+                  Đặt lại lọc
+                </button>
+              )}
+            </div>
+          </div>
+
           {filteredTrips.length === 0 ? (
             <div className="p-12 text-center text-slate-500">
               <Briefcase className="w-10 h-10 text-slate-300 mx-auto mb-2" />
-              <p className="text-sm font-semibold">Bạn chưa có đề xuất chuyến đi nào.</p>
-              <button
-                onClick={() => {
-                  resetProposalForm();
-                  setActiveTab('tab2');
-                }}
-                className="mt-3 px-4 py-2 bg-blue-600 text-white rounded-lg text-xs font-bold hover:bg-blue-700 transition cursor-pointer"
-              >
-                + Lập Đề Xuất Đầu Tiên
-              </button>
+              {danhSach.length > 0 ? (
+                <>
+                  <p className="text-sm font-semibold">Không tìm thấy chuyến đi nào với bộ lọc đã chọn.</p>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setFilterTrangThai('ALL');
+                      setSearchTripKeyword('');
+                    }}
+                    className="mt-3 px-3 py-1.5 bg-slate-100 text-slate-700 rounded-lg text-xs font-bold hover:bg-slate-200 transition cursor-pointer"
+                  >
+                    Xem tất cả {danhSach.length} chuyến đi
+                  </button>
+                </>
+              ) : (
+                <>
+                  <p className="text-sm font-semibold">Bạn chưa có đề xuất chuyến đi nào.</p>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      resetProposalForm();
+                      setActiveTab('tab2');
+                    }}
+                    className="mt-3 px-4 py-2 bg-blue-600 text-white rounded-lg text-xs font-bold hover:bg-blue-700 transition cursor-pointer"
+                  >
+                    + Lập Đề Xuất Đầu Tiên
+                  </button>
+                </>
+              )}
             </div>
           ) : (
             <div className="overflow-x-auto">
@@ -6376,6 +7315,17 @@ Lưu ý quan trọng:
                               Khai báo CP & OCR
                             </button>
                           )}
+
+                          {item.trangThai === 'Đã tạm ứng' && (
+                            <button
+                              onClick={() => handleHoanThanhChuyenDi(item.maDeXuat)}
+                              className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-blue-700 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition cursor-pointer shadow-xs"
+                              title="Xác nhận đã đi công tác về và chuyển hồ sơ sang Kế toán để đối soát chốt sổ"
+                            >
+                              <CheckCircle2 className="w-3.5 h-3.5" />
+                              Hoàn thành chuyến đi
+                            </button>
+                          )}
                         </div>
                       </td>
                     </tr>
@@ -6388,7 +7338,7 @@ Lưu ý quan trọng:
       )}
 
       {/* ========================================================================= */}
-      {/* TAB 2: FORM LẬP ĐỀ XUẤT CÔNG TÁC & LƯU BẢN NHÁP (UC03 - Page 5 & Page 16) */}
+      {/* TAB 2: FORM LẬP ĐỀ XUẤT CÔNG TÁC & LƯU BẢN NHÁP */}
       {/* ========================================================================= */}
       {activeTab === 'tab2' && (
         <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-xs space-y-6">
@@ -6516,34 +7466,61 @@ Lưu ý quan trọng:
                       <option value="CP_TIEPKHACH">Chi phí tiếp khách & Ngoại giao (CP_TIEPKHACH)</option>
                     </select>
                   </div>
-                  <div>
-                    <label className="block text-[11px] font-medium text-slate-500 mb-0.5">Số tiền dự kiến (VNĐ)</label>
-                    <input
-                      type="number"
-                      placeholder="Số tiền dự kiến"
-                      value={item.soTienDuKien}
-                      onChange={(e) => {
-                        const copy = [...chiTietItems];
-                        copy[index].soTienDuKien = e.target.value;
-                        setChiTietItems(copy);
-                      }}
-                      className="w-full p-2 border border-slate-300 rounded text-xs font-mono font-bold"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-[11px] font-medium text-slate-500 mb-0.5">Giải trình (nếu vượt mức)</label>
-                    <input
-                      type="text"
-                      placeholder="Giải trình vượt định mức (nếu có)..."
-                      value={item.lyDoGiaiTrinh}
-                      onChange={(e) => {
-                        const copy = [...chiTietItems];
-                        copy[index].lyDoGiaiTrinh = e.target.value;
-                        setChiTietItems(copy);
-                      }}
-                      className="w-full p-2 border border-slate-300 rounded text-xs"
-                    />
-                  </div>
+                  {(() => {
+                    const limit = getDinhMucToiDa(item.maLoaiCP);
+                    const amount = parseFloat(item.soTienDuKien) || 0;
+                    const isExceeded = limit && amount > limit;
+                    return (
+                      <>
+                        <div>
+                          <div className="flex items-center justify-between mb-0.5">
+                            <label className="block text-[11px] font-medium text-slate-500">Số tiền dự kiến (VNĐ)</label>
+                            {limit > 0 && (
+                              <span className={`text-[10px] font-semibold ${isExceeded ? 'text-rose-600 font-bold' : 'text-slate-400'}`}>
+                                Trần: {formatVND(limit)}
+                              </span>
+                            )}
+                          </div>
+                          <input
+                            type="number"
+                            placeholder="Số tiền dự kiến"
+                            value={item.soTienDuKien}
+                            onChange={(e) => {
+                              const copy = [...chiTietItems];
+                              copy[index].soTienDuKien = e.target.value;
+                              setChiTietItems(copy);
+                            }}
+                            className={`w-full p-2 border rounded text-xs font-mono font-bold ${
+                              isExceeded ? 'border-amber-400 bg-amber-50/50 text-amber-900' : 'border-slate-300'
+                            }`}
+                          />
+                        </div>
+                        <div>
+                          <div className="flex items-center justify-between mb-0.5">
+                            <label className="block text-[11px] font-medium text-slate-500">
+                              Giải trình {isExceeded ? <span className="text-rose-600 font-bold">* Bắt buộc</span> : '(nếu vượt mức)'}
+                            </label>
+                          </div>
+                          <input
+                            type="text"
+                            required={isExceeded}
+                            placeholder={isExceeded ? "Bắt buộc nhập lý do vượt định mức..." : "Giải trình vượt định mức (nếu có)..."}
+                            value={item.lyDoGiaiTrinh}
+                            onChange={(e) => {
+                              const copy = [...chiTietItems];
+                              copy[index].lyDoGiaiTrinh = e.target.value;
+                              setChiTietItems(copy);
+                            }}
+                            className={`w-full p-2 border rounded text-xs ${
+                              isExceeded && !item.lyDoGiaiTrinh?.trim()
+                                ? 'border-rose-400 bg-rose-50/30 focus:ring-1 focus:ring-rose-400'
+                                : 'border-slate-300'
+                            }`}
+                          />
+                        </div>
+                      </>
+                    );
+                  })()}
                   <div className="text-right pt-4 md:pt-0">
                     {chiTietItems.length > 1 && (
                       <button
@@ -6594,7 +7571,7 @@ Lưu ý quan trọng:
       )}
 
       {/* ========================================================================= */}
-      {/* TAB 3: KHAI BÁO CHI PHÍ THỰC TẾ & TẢI ẢNH CHỨNG TỪ OCR (UC09, UC13) */}
+      {/* TAB 3: KHAI BÁO CHI PHÍ THỰC TẾ & TẢI ẢNH CHỨNG TỪ OCR */}
       {/* ========================================================================= */}
       {activeTab === 'tab3' && (
         <form onSubmit={handleKhaiBaoSubmit} className="bg-white p-6 rounded-xl border border-slate-200 shadow-xs space-y-6">
@@ -6748,13 +7725,24 @@ Lưu ý quan trọng:
                     </div>
                   </div>
 
-                  {/* KHU VỰC TẢI ẢNH HÓA ĐƠN & QUÉT OCR (UC09 & UC13) */}
+                  {/* KHU VỰC TẢI ẢNH HÓA ĐƠN & QUÉT OCR */}
                   <div className="bg-white p-3.5 rounded-lg border border-slate-200 space-y-3">
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                      <span className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
-                        <Camera className="w-4 h-4 text-indigo-600" />
-                        Đính Kèm Hóa Đơn & Quét OCR Tự Động (Tối đa 500MB)
-                      </span>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                          <Camera className="w-4 h-4 text-indigo-600" />
+                          Đính Kèm Hóa Đơn & Quét OCR Tự Động (Tối đa 500MB)
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => setShowAiKeyModal(true)}
+                          className="px-2 py-0.5 text-[11px] font-bold text-purple-700 bg-purple-50 border border-purple-300 hover:bg-purple-100 rounded-md transition cursor-pointer flex items-center gap-1 shadow-2xs"
+                          title="Cấu hình Google Lens AI"
+                        >
+                          <Sparkles className="w-3 h-3 text-purple-600" />
+                          Google Lens AI
+                        </button>
+                      </div>
                       {item.fileName && (
                         <div className="flex items-center gap-2">
                           <span className="px-2 py-0.5 text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-full">
@@ -6955,22 +7943,55 @@ Lưu ý quan trọng:
                   </div>
 
                   {/* Giải trình ngoại lệ */}
-                    <div>
-                      <label className="block text-xs font-medium text-slate-600 mb-1">
-                        Giải Trình Ngoại Lệ (nếu số tiền chi thực tế vượt định mức duyệt):
-                      </label>
-                      <input
-                        type="text"
-                        placeholder="Nhập lý do chi vượt hạn mức để gửi Lãnh đạo duyệt đặc cách..."
-                        value={item.lyDoGiaiTrinh}
-                        onChange={(e) => {
-                          const copy = [...claimItems];
-                          copy[index].lyDoGiaiTrinh = e.target.value;
-                          setClaimItems(copy);
-                        }}
-                        className="w-full p-2 border border-slate-300 rounded-lg text-xs"
-                      />
-                    </div>
+                  {(() => {
+                    const limit = getDinhMucToiDa(item.maLoaiCP);
+                    const amount = parseFloat(item.soTienThucTe) || 0;
+                    const isExceeded = limit && amount > limit;
+
+                    return (
+                      <div className={`p-3 rounded-xl border transition ${isExceeded ? 'bg-amber-50/80 border-amber-300 ring-2 ring-amber-200' : 'bg-slate-50 border-slate-200'}`}>
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 mb-1.5">
+                          <label className="block text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                            {isExceeded && <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />}
+                            Lý Do Giải Trình Chi Phí Ngoại Lệ
+                            {isExceeded ? (
+                              <span className="text-rose-600 font-bold">* Bắt buộc do vượt định mức</span>
+                            ) : (
+                              <span className="text-slate-400 font-normal">(nếu có)</span>
+                            )}
+                          </label>
+                          {limit > 0 && (
+                            <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-full self-start sm:self-auto ${isExceeded ? 'bg-rose-100 text-rose-700 font-bold' : 'bg-slate-200 text-slate-600'}`}>
+                              Hạn mức trần: {formatVND(limit)}
+                            </span>
+                          )}
+                        </div>
+
+                        {isExceeded && (
+                          <div className="p-2 mb-2 bg-amber-100/70 border border-amber-300 rounded-lg text-xs text-amber-900 leading-relaxed">
+                            ⚠️ Số tiền thực tế <strong>{formatVND(amount)}</strong> đã vượt hạn mức quy định <strong>{formatVND(limit)}</strong> (vượt <strong>{formatVND(amount - limit)}</strong>). Bạn <strong>bắt buộc</strong> phải nhập lý do giải trình cụ thể bên dưới để Quản lý xem xét duyệt đặc cách!
+                          </div>
+                        )}
+
+                        <input
+                          type="text"
+                          required={isExceeded}
+                          placeholder={isExceeded ? "Bắt buộc nhập lý do (VD: Vé bay đổi giờ gấp do lịch công tác khẩn, hết vé thường)..." : "Nhập lý do chi vượt hạn mức để gửi Lãnh đạo duyệt đặc cách (nếu có)..."}
+                          value={item.lyDoGiaiTrinh}
+                          onChange={(e) => {
+                            const copy = [...claimItems];
+                            copy[index].lyDoGiaiTrinh = e.target.value;
+                            setClaimItems(copy);
+                          }}
+                          className={`w-full p-2.5 border rounded-lg text-xs bg-white transition ${
+                            isExceeded && !item.lyDoGiaiTrinh?.trim()
+                              ? 'border-rose-400 focus:ring-2 focus:ring-rose-400 bg-rose-50/20'
+                              : 'border-slate-300 focus:ring-2 focus:ring-indigo-400'
+                          }`}
+                        />
+                      </div>
+                    );
+                  })()}
                   </div>
               ))}
             </div>
@@ -7145,7 +8166,7 @@ Lưu ý quan trọng:
           </div>
         </div>
       )}
-      {/* TAB 4: BÁO CÁO QUYẾT TOÁN CÁ NHÂN (UC-15 THEO SƠ ĐỒ TRANG 27) */}
+      {/* TAB 4: BÁO CÁO QUYẾT TOÁN CÁ NHÂN */}
       {activeTab === 'tab4' && (
         <SettlementReportSection
           currentUser={currentUser}

@@ -1,3 +1,4 @@
+using System.Data;
 using Dapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
@@ -146,7 +147,7 @@ public class AuthController : ControllerBase
                 inputPassword != "123456" && 
                 inputPassword != "123123")
             {
-                return BadRequest(ApiResponse<string>.Fail("Mật khẩu không chính xác. Mật khẩu mặc định là: 123456"));
+                return BadRequest(ApiResponse<string>.Fail("Mật khẩu không chính xác. Mật khẩu mặc định là: 123123"));
             }
 
             // Sinh Token OIDC / Session token
@@ -264,7 +265,8 @@ public class AuthController : ControllerBase
     }
 
     /// <summary>
-    /// Danh mục Phòng ban để phục vụ phân quyền người dùng
+    /// Danh mục Phòng ban (MH-03 - Quản lý danh mục phòng ban)
+    /// Kèm số lượng nhân viên trực thuộc
     /// </summary>
     [HttpGet("departments")]
     public async Task<IActionResult> GetDepartments()
@@ -272,13 +274,204 @@ public class AuthController : ControllerBase
         try
         {
             using var connection = _db.CreateConnection();
-            var sql = "SELECT MaPB, TenPB FROM PhongBan ORDER BY MaPB ASC";
-            var pbs = await connection.QueryAsync<dynamic>(sql);
-            return Ok(ApiResponse<IEnumerable<dynamic>>.Ok(pbs));
+            var sql = @"
+                SELECT 
+                    pb.MaPB, 
+                    pb.TenPB, 
+                    COUNT(nv.MaNV) AS SoNhanVien
+                FROM PhongBan pb
+                LEFT JOIN NhanVien nv ON pb.MaPB = nv.MaPB
+                GROUP BY pb.MaPB, pb.TenPB
+                ORDER BY pb.MaPB ASC";
+            var pbs = await connection.QueryAsync<DepartmentDto>(sql);
+            return Ok(ApiResponse<IEnumerable<DepartmentDto>>.Ok(pbs));
         }
         catch (Exception ex)
         {
             return StatusCode(500, ApiResponse<string>.Fail(ex.Message));
+        }
+    }
+
+    /// <summary>
+    /// Thêm phòng ban mới (MH-03 - Quản trị viên)
+    /// </summary>
+    [HttpPost("departments")]
+    public async Task<IActionResult> CreateDepartment([FromBody] DepartmentCreateRequest request)
+    {
+        var maPB = (request?.MaPB ?? string.Empty).Trim().ToUpper();
+        var tenPB = (request?.TenPB ?? string.Empty).Trim();
+
+        if (string.IsNullOrWhiteSpace(maPB) || string.IsNullOrWhiteSpace(tenPB))
+        {
+            return BadRequest(ApiResponse<string>.Fail("Mã phòng ban và Tên phòng ban không được để trống."));
+        }
+
+        try
+        {
+            using var connection = _db.CreateConnection();
+            var exists = await connection.ExecuteScalarAsync<int>(
+                "SELECT COUNT(1) FROM PhongBan WHERE UPPER(TRIM(MaPB)) = UPPER(TRIM(@MaPB))", new { MaPB = maPB });
+            if (exists > 0)
+            {
+                return BadRequest(ApiResponse<string>.Fail($"Mã phòng ban '{maPB}' đã tồn tại trong hệ thống."));
+            }
+
+            var existsName = await connection.ExecuteScalarAsync<int>(
+                "SELECT COUNT(1) FROM PhongBan WHERE LOWER(TRIM(TenPB)) = LOWER(TRIM(@TenPB))", new { TenPB = tenPB });
+            if (existsName > 0)
+            {
+                return BadRequest(ApiResponse<string>.Fail($"Tên phòng ban '{tenPB}' đã tồn tại trong hệ thống."));
+            }
+
+            await connection.ExecuteAsync(
+                "INSERT INTO PhongBan (MaPB, TenPB) VALUES (@MaPB, @TenPB)",
+                new { MaPB = maPB, TenPB = tenPB }
+            );
+
+            return Ok(ApiResponse<bool>.Ok(true, $"Thêm mới phòng ban '{tenPB}' ({maPB}) thành công."));
+        }
+        catch (SqlException ex)
+        {
+            return BadRequest(ApiResponse<string>.Fail(SqlErrorHelper.Translate(ex)));
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, ApiResponse<string>.Fail($"[Lỗi Hệ thống]: {ex.Message}"));
+        }
+    }
+
+    /// <summary>
+    /// Chỉnh sửa thông tin mã và tên phòng ban (MH-03 - Quản trị viên)
+    /// </summary>
+    [HttpPut("departments/{maPB}")]
+    public async Task<IActionResult> UpdateDepartment(string maPB, [FromBody] DepartmentUpdateRequest request)
+    {
+        var oldMaPB = (maPB ?? string.Empty).Trim().ToUpper();
+        var newMaPB = string.IsNullOrWhiteSpace(request?.MaPBMoi) ? oldMaPB : request.MaPBMoi.Trim().ToUpper();
+        var tenPB = (request?.TenPB ?? string.Empty).Trim();
+
+        if (string.IsNullOrWhiteSpace(oldMaPB) || string.IsNullOrWhiteSpace(tenPB))
+        {
+            return BadRequest(ApiResponse<string>.Fail("Mã phòng ban và Tên phòng ban không được để trống."));
+        }
+
+        try
+        {
+            using var connection = _db.CreateConnection();
+            var existsOld = await connection.ExecuteScalarAsync<int>(
+                "SELECT COUNT(1) FROM PhongBan WHERE UPPER(TRIM(MaPB)) = UPPER(TRIM(@OldMaPB))", new { OldMaPB = oldMaPB });
+            if (existsOld == 0)
+            {
+                return NotFound(ApiResponse<string>.Fail($"Không tìm thấy phòng ban với mã '{oldMaPB}'."));
+            }
+
+            if (!newMaPB.Equals(oldMaPB, StringComparison.OrdinalIgnoreCase))
+            {
+                var existsNew = await connection.ExecuteScalarAsync<int>(
+                    "SELECT COUNT(1) FROM PhongBan WHERE UPPER(TRIM(MaPB)) = UPPER(TRIM(@NewMaPB))", new { NewMaPB = newMaPB });
+                if (existsNew > 0)
+                {
+                    return BadRequest(ApiResponse<string>.Fail($"Mã phòng ban mới '{newMaPB}' đã tồn tại trong hệ thống."));
+                }
+            }
+
+            var existsName = await connection.ExecuteScalarAsync<int>(
+                "SELECT COUNT(1) FROM PhongBan WHERE LOWER(TRIM(TenPB)) = LOWER(TRIM(@TenPB)) AND UPPER(TRIM(MaPB)) <> UPPER(TRIM(@OldMaPB))",
+                new { TenPB = tenPB, OldMaPB = oldMaPB });
+            if (existsName > 0)
+            {
+                return BadRequest(ApiResponse<string>.Fail($"Tên phòng ban '{tenPB}' đã được sử dụng bởi phòng ban khác."));
+            }
+
+            if (newMaPB.Equals(oldMaPB, StringComparison.OrdinalIgnoreCase))
+            {
+                await connection.ExecuteAsync(
+                    "UPDATE PhongBan SET TenPB = @TenPB WHERE UPPER(TRIM(MaPB)) = UPPER(TRIM(@OldMaPB))",
+                    new { TenPB = tenPB, OldMaPB = oldMaPB }
+                );
+            }
+            else
+            {
+                if (connection.State != ConnectionState.Open) connection.Open();
+                using var tx = connection.BeginTransaction();
+                try
+                {
+                    await connection.ExecuteAsync(
+                        "INSERT INTO PhongBan (MaPB, TenPB) VALUES (@NewMaPB, @TenPB)",
+                        new { NewMaPB = newMaPB, TenPB = tenPB }, tx);
+
+                    await connection.ExecuteAsync(
+                        "UPDATE NhanVien SET MaPB = @NewMaPB WHERE UPPER(TRIM(MaPB)) = UPPER(TRIM(@OldMaPB))",
+                        new { NewMaPB = newMaPB, OldMaPB = oldMaPB }, tx);
+
+                    await connection.ExecuteAsync(
+                        "DELETE FROM PhongBan WHERE UPPER(TRIM(MaPB)) = UPPER(TRIM(@OldMaPB))",
+                        new { OldMaPB = oldMaPB }, tx);
+
+                    tx.Commit();
+                }
+                catch
+                {
+                    tx.Rollback();
+                    throw;
+                }
+            }
+
+            return Ok(ApiResponse<bool>.Ok(true, $"Cập nhật thông tin phòng ban '{tenPB}' ({newMaPB}) thành công."));
+        }
+        catch (SqlException ex)
+        {
+            return BadRequest(ApiResponse<string>.Fail(SqlErrorHelper.Translate(ex)));
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, ApiResponse<string>.Fail($"[Lỗi Hệ thống]: {ex.Message}"));
+        }
+    }
+
+    /// <summary>
+    /// Xóa phòng ban (MH-03 - Quản trị viên)
+    /// Ràng buộc: Không được xóa nếu đang có nhân viên trực thuộc
+    /// </summary>
+    [HttpDelete("departments/{maPB}")]
+    public async Task<IActionResult> DeleteDepartment(string maPB)
+    {
+        var trimmedMaPB = (maPB ?? string.Empty).Trim().ToUpper();
+        if (string.IsNullOrWhiteSpace(trimmedMaPB))
+        {
+            return BadRequest(ApiResponse<string>.Fail("Mã phòng ban không hợp lệ."));
+        }
+
+        try
+        {
+            using var connection = _db.CreateConnection();
+            var exists = await connection.ExecuteScalarAsync<int>(
+                "SELECT COUNT(1) FROM PhongBan WHERE UPPER(TRIM(MaPB)) = UPPER(TRIM(@MaPB))", new { MaPB = trimmedMaPB });
+            if (exists == 0)
+            {
+                return NotFound(ApiResponse<string>.Fail($"Không tìm thấy phòng ban với mã '{trimmedMaPB}'."));
+            }
+
+            var countNhanVien = await connection.ExecuteScalarAsync<int>(
+                "SELECT COUNT(1) FROM NhanVien WHERE UPPER(TRIM(MaPB)) = UPPER(TRIM(@MaPB))", new { MaPB = trimmedMaPB });
+            if (countNhanVien > 0)
+            {
+                return BadRequest(ApiResponse<string>.Fail(
+                    $"Phòng ban '{trimmedMaPB}' hiện đang có {countNhanVien} nhân viên trực thuộc. Vui lòng chuyển nhân sự sang phòng ban khác trước khi xóa."));
+            }
+
+            await connection.ExecuteAsync(
+                "DELETE FROM PhongBan WHERE UPPER(TRIM(MaPB)) = UPPER(TRIM(@MaPB))", new { MaPB = trimmedMaPB });
+
+            return Ok(ApiResponse<bool>.Ok(true, $"Đã xóa phòng ban '{trimmedMaPB}' thành công."));
+        }
+        catch (SqlException ex)
+        {
+            return BadRequest(ApiResponse<string>.Fail(SqlErrorHelper.Translate(ex)));
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, ApiResponse<string>.Fail($"[Lỗi Hệ thống]: {ex.Message}"));
         }
     }
 
@@ -510,10 +703,10 @@ public class AuthController : ControllerBase
             if (checkMatKhau > 0)
             {
                 await connection.ExecuteAsync(
-                    "UPDATE NhanVien SET MatKhau = '123456' WHERE UPPER(TRIM(MaNV)) = UPPER(TRIM(@MaNV))", new { MaNV = maNV });
+                    "UPDATE NhanVien SET MatKhau = '123123' WHERE UPPER(TRIM(MaNV)) = UPPER(TRIM(@MaNV))", new { MaNV = maNV });
             }
 
-            return Ok(ApiResponse<bool>.Ok(true, $"Đã khôi phục mật khẩu tài khoản '{maNV}' về '123456' thành công."));
+            return Ok(ApiResponse<bool>.Ok(true, $"Đã khôi phục mật khẩu tài khoản '{maNV}' về '123123' thành công."));
         }
         catch (Exception ex)
         {

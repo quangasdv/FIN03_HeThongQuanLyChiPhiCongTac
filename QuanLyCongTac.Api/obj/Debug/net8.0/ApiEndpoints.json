@@ -11,6 +11,59 @@
   },
   {
     "ContainingType": "QuanLyCongTac.Api.Controllers.AuthController",
+    "Method": "CreateDepartment",
+    "RelativePath": "api/Auth/departments",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "QuanLyCongTac.Api.DTOs.DepartmentCreateRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "QuanLyCongTac.Api.Controllers.AuthController",
+    "Method": "UpdateDepartment",
+    "RelativePath": "api/Auth/departments/{maPB}",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "maPB",
+        "Type": "System.String",
+        "IsRequired": true
+      },
+      {
+        "Name": "request",
+        "Type": "QuanLyCongTac.Api.DTOs.DepartmentUpdateRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "QuanLyCongTac.Api.Controllers.AuthController",
+    "Method": "DeleteDepartment",
+    "RelativePath": "api/Auth/departments/{maPB}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "maPB",
+        "Type": "System.String",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "QuanLyCongTac.Api.Controllers.AuthController",
     "Method": "Login",
     "RelativePath": "api/Auth/login",
     "HttpMethod": "POST",
@@ -114,6 +167,11 @@
     "Parameters": [
       {
         "Name": "maNV",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "maPB",
         "Type": "System.String",
         "IsRequired": false
       },

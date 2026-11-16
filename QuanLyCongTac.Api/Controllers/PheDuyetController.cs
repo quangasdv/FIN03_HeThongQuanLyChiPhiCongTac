@@ -147,13 +147,12 @@ public class PheDuyetController : ControllerBase
 
                 UPDATE ChiTietKhaiBao 
                 SET TrangThaiHopLe = @TrangThaiChiPhi 
-                WHERE MaCTKB = @MaCTKB;";
+                WHERE MaCTKB IN (SELECT MaCTKB FROM GiaiTrinhNgoaiLe WHERE MaGiaiTrinh = @MaGiaiTrinh);";
 
             await connection.ExecuteAsync(updateSql, new {
                 KetQuaPheDuyet = ketQuaPheDuyet,
                 TrangThaiChiPhi = trangThaiChiPhi,
-                MaGiaiTrinh = request.MaGiaiTrinh,
-                MaCTKB = (string)item.MaCTKB
+                MaGiaiTrinh = request.MaGiaiTrinh
             });
 
             return Ok(ApiResponse<string>.Ok(request.MaGiaiTrinh, $"Đã cập nhật ngoại lệ '{request.MaGiaiTrinh}': {ketQuaPheDuyet}."));
